@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# /etc/init.d/gungnir-server
+#
+# Startup script for gungnir-server
+#
+# chkconfig: 345 20 80
+# description: Starts and stops gungnir-server
+. /etc/init.d/functions
+serverBin=__GUNGNIR_INSTALL_DIR__/gungnir-server/bin/server.sh
+# stormSvc=$(echo $0 | cut -d'-' -f2)
+desc="GungnirServer daemon"
+outFile="/var/log/gungnir/gungnir-server.out"
+serverUser=__GUNGNIR_USER__
+pidFile=/var/run/gungnir-server.pid
+ 
+if ! [ -f $serverBin ]; then
+  echo "GungnirServer binary not found."
+  exit 5
+fi
+ 
+if [ -f /etc/sysconfig/gungnir-server ]; then
+  . /etc/sysconfig/gungnir-server
+fi
+ 
+start() {
+  echo -n "Starting $desc : "
+  su $serverUser -c "$serverBin start >>$outFile 2>&1" && success || failure $"$desc start"
+  echo
+  sleep 3
+  RETVAL=$?
+	
+  return $RETVAL
+}
+ 
+stop() {
+  echo -n "Shutting down $desc : "
+  su $serverUser -c "$serverBin stop >>$outFile 2>&1" && success || failure $"$desc stop"
+  echo
+  [ -e $pidFile ] && rm $pidFile
+}
+ 
+restart() {
+    stop
+    start
+}
+ 
+status() {
+  # pid=$(pgrep -f backtype.storm.daemon.$stormSvc)
+  pid=`cat __GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir_server.pid`
+    
+  if [ -z $pid ]; then
+    echo "GungnirServer is NOT running."
+		RETVAL=1
+  else
+    echo "GungnirServer is running (pid is $pid)."
+		RETVAL=0
+  fi
+ 
+}
+ 
+case "$1" in
+  start)   start;;
+  stop)    stop;;
+  restart) restart;;
+  status)  status;;
+  *)       echo "Usage: $0 {start|stop|restart}"
+           RETVAL=2;;
+esac
+exit $RETVAL

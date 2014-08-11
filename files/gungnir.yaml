@@ -1,0 +1,90 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http:# www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+### Thrift server
+# gungnir.thrift.server: "localhost:9190"
+
+### Rest server
+# gungnir.rest.server: "localhost:9191"
+# persistent.deser.queue.size: 128
+# persistent.deser.parallelism: 32
+# tracking.cookie.maxage: 864000000
+# persistent.emitter.queue.size: 128
+# persistent.emitter.parallelism: 32
+
+### Cluster
+storm.cluster.mode: "distributed"
+
+### Topology
+# storm.topology.workers: 1
+# topology.status.check.timeout: 120000
+# topology.status.check.interval: 5000
+# default.parallelism: 1
+
+### Metastore
+# metastore.mongodb.servers:
+#   - "localhost:27017"
+
+### Tuple store
+# kafka.brokers:
+#   - "localhost:9092"
+# kafka.auto.commit.interval: 10000
+# kafka.zookeeper.servers:
+#   - "localhost:2181"
+# kafka.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
+# kafka.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
+# kafka.zookeeper.sync.timeout: 2000
+# kafka.zookeeper.retry.times: ${storm.zookeeper.retry.times}
+# kafka.zookeeper.retry.interval: ${storm.zookeeper.retry.interval}
+
+### Monitor
+# monitor.enabled: false
+# kafka.monitor.brokers:
+#   - "localhost:9092"
+# kafka.monitor.auto.commit.interval: 10000
+# kafka.monitor.zookeeper.servers:
+#   - "localhost:2181"
+# kafka.monitor.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
+# kafka.monitor.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
+# kafka.monitor.zookeeper.sync.timeout: 2000
+
+### Component
+# component.snapshot.queue.size: 128
+# component.snapshot.parallelism: 32
+
+### Operator
+# spout.operator.queue.size: 128
+# emit.operator.queue.size: 128
+
+### Processor
+# mongo.fetch.servers:
+#   - "localhost:27017"
+# kafka.emit.brokers:
+#   - "localhost:9092"
+# mongo.persist.servers:
+#   - "localhost:27017"
+
+### Metrics
+# metrics.reporters:
+#   - reporter: org.gennai.gungnir.metrics.CsvMetricsReporter
+#     interval.secs: 60
+#     output.dir: ${gungnir.home}/logs
+
+### Client
+# gungnir.client.connection.timeout: 3000
+# gungnir.client.request.retries: 3
+# gungnir.client.response.timeout: 10000
+

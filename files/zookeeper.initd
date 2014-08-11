@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# zookeeper      zookeeper
+#
+# chkconfig: 345 80 20
+# description: zookeeper.
+# processname: zookeeper
+# pidfile: /var/local/zookeeper/zookeeper_server.pid
+# config: __ZK_INSTALL_DIR__/zookeeper/conf/zoo.cfg
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+RETVAL=0
+prog="zookeeper"
+lockfile=/var/lock/subsys/$prog
+pidfile=/var/local/zookeeper/zookeeper_server.pid
+
+status -p $pidfile >/dev/null 2>&1
+running=$?
+
+conf_check() {
+    [ -x __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh ] || exit 5
+    [ -d __ZK_INSTALL_DIR__/zookeeper/conf ] || exit 6
+}
+
+start() {
+	conf_check
+	# Start daemons.
+	echo -n $"Starting zookeeper: "
+	[ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
+	sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh start 2>/dev/null 1>&2 && success || failure $"$prog start"
+	RETVAL=$?
+  sleep 3
+	[ $RETVAL -eq 0 ] && touch $lockfile
+        echo
+	return $RETVAL
+}
+
+stop() {
+	conf_check
+        # Stop daemons.
+	echo -n $"Shutting down zookeeper: "
+	sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh stop 2>/dev/null 1>&2 && success || failure $"$prog stop"
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && rm -f $lockfile $pidfile
+	echo
+	return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	# [ $running -eq 0 ] && exit 0
+	start
+	;;
+  stop)
+	# [ $running -eq 0 ] || exit 0
+	stop
+	;;
+  *)
+	echo $"Usage: $0 {start|stop}"
+	exit 2
+esac
+
+exit $?
