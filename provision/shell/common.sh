@@ -8,7 +8,7 @@ function getMode() {
 		-e 's/[[:space:]]*$//' \
 		-e 's/^[[:space:]]*//' \
 		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/files/config.ini \
+		< /vagrant/config.ini \
 		| sed -n -e "/^\[common\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
 
 	if [ -z "${mode}" ] ; then
@@ -17,6 +17,9 @@ function getMode() {
 	fi
 
 	case ${mode} in
+		"minimum")
+			echo ${mode}
+			;;
 		"local")
 			echo ${mode}
 			;;

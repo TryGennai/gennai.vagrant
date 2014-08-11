@@ -8,15 +8,25 @@ KAFKA_INSTALL_DIR=/opt
 KAFKA_USER=vagrant
 KAFKA_GROUP=vagrant
 KAFKA_SERVICE=off
+ZOOKEEPER=off
+
+# mode check.
+. /vagrant/provision/shell/common.sh
+MODE=`getMode`
+case ${MODE} in
+	"minimum")
+		ZOOKEEPER=on
+		;;
+esac
 
 # source config and override settings.
-if [ -f "/vagrant/files/config.ini" ] ; then
+if [ -f "/vagrant/config.ini" ] ; then
 	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
 		-e 's/;.*$//' \
 		-e 's/[[:space:]]*$//' \
 		-e 's/^[[:space:]]*//' \
 		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/files/config.ini \
+		< /vagrant/config.ini \
 		| sed -n -e "/^\[kafka\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
 
 	if [ ! -z "${install}" -a "${install}" = false ] ; then
@@ -89,15 +99,30 @@ chmod +x ${KAFKA_INSTALL_DIR}/kafka/bin/kafkaServer
 mkdir -p /data/kafka
 mkdir -p /var/log/kafka
 
-# OUTPUT=/home/${KAFKA_USER}/.bashrc
-# echo "" >> ${OUTPUT}
-# echo "export KAFKA_HOME=${KAFKA_INSTALL_DIR}/kafka" >> ${OUTPUT}
-# echo "export PATH=\${KAFKA_HOME}/bin:\${PATH}" >> ${OUTPUT}
 
 echo " - chown."
 chown -R ${KAFKA_USER}:${KAFKA_GROUP} ${KAFKA_INSTALL_DIR}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
 chown -R ${KAFKA_USER}:${KAFKA_GROUP} /data/kafka
 chown -R ${KAFKA_USER}:${KAFKA_GROUP} /var/log/kafka
+
+if [ "${ZOOKEEPER}" = "on" ] ; then
+	echo " - zookeeper. : ${ZOOKEEPER}"
+	mkdir -p /data/zookeeper
+	chown -R ${KAFKA_USER}:${KAFKA_GROUP} /data/zookeeper
+	cp /vagrant/files/kafka.zookeeper.properties ${KAFKA_INSTALL_DIR}/kafka/config/zookeeper.properties
+	sed \
+		-e "s/__KAFKA_INSTALL_DIR__/${S_KAFKA_INSTALL_DIR}/g" \
+		/vagrant/files/kafkaZooServer > ${KAFKA_INSTALL_DIR}/kafka/bin/kafkaZooServer
+	chmod +x ${KAFKA_INSTALL_DIR}/kafka/bin/kafkaZooServer
+	sed \
+		-e "s/__KAFKA_INSTALL_DIR__/${S_KAFKA_INSTALL_DIR}/g" \
+		-e "s/__KAFKA_USER__/${KAFKA_USER}/g" \
+		/vagrant/files/kafka-zookeeper.initd > /etc/init.d/kafka-zookeeper
+	chmod +x /etc/init.d/kafka-zookeeper
+	chkconfig --add kafka-zookeeper
+	chkconfig kafka-zookeeper on
+	service kafka-zookeeper start
+fi
 
 echo " - service. : ${KAFKA_SERVICE}"
 sed \

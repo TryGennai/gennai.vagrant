@@ -2,8 +2,8 @@
 
 echo "in gungnir."
 
-GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20140725.tar.gz
-GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20140725.tar.gz
+GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20140811.tar.gz
+GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20140811.tar.gz
 GUNGNIR_VERSION=0.0.1
 GUNGNIR_INSTALL_DIR=/opt
 GUNGNIR_USER=vagrant
@@ -11,13 +11,13 @@ GUNGNIR_GROUP=vagrant
 GUNGNIR_SERVICE=off
 
 # source config and override settings.
-if [ -f "/vagrant/files/config.ini" ] ; then
+if [ -f "/vagrant/config.ini" ] ; then
 	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
 		-e 's/;.*$//' \
 		-e 's/[[:space:]]*$//' \
 		-e 's/^[[:space:]]*//' \
 		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/files/config.ini \
+		< /vagrant/config.ini \
 		| sed -n -e "/^\[gungnir\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
 
 	if [ ! -z "${install}" -a "${install}" = false ] ; then
@@ -79,12 +79,7 @@ echo " - setting."
 # mode check.
 . /vagrant/provision/shell/common.sh
 MODE=`getMode`
-if [ "${MODE}" = "distributed" ] ; then
-	cp /vagrant/files/gungnir.yaml ${GUNGNIR_INSTALL_DIR}/gungnir-server/conf
-else
-	sed -e "s/\(storm.cluster.mode.*$\)/# \1/g" \
-	/vagrant/files/gungnir.yaml > ${GUNGNIR_INSTALL_DIR}/gungnir-server/conf/gungnir.yaml
-fi
+cp /vagrant/files/gungnir.yaml.${MODE} ${GUNGNIR_INSTALL_DIR}/gungnir-server/conf/gungnir.yaml
 
 mkdir -p /var/log/gungnir
 

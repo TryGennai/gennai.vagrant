@@ -12,19 +12,22 @@ STORM_SERVICE=off
 # mode check.
 . /vagrant/provision/shell/common.sh
 STORM_MODE=`getMode`
-if [ "${STORM_MODE}" = "local" ] ; then
-	install=false
-	service=off
-fi
+case ${STORM_MODE} in
+	"distributed")
+		;;
+	*)
+		install=false
+		service=off
+esac
 
 # source config and override settings.
-if [ -f "/vagrant/files/config.ini" ] ; then
+if [ -f "/vagrant/config.ini" ] ; then
 	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
 		-e 's/;.*$//' \
 		-e 's/[[:space:]]*$//' \
 		-e 's/^[[:space:]]*//' \
 		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/files/config.ini \
+		< /vagrant/config.ini \
 		| sed -n -e "/^\[storm\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
 
 	if [ ! -z "${install}" -a "${install}" = "false" ] ; then

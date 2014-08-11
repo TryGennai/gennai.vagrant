@@ -14,19 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-### Thrift server
-# gungnir.thrift.server: "localhost:9190"
+### Gungnir server
+# gungnir.server.port: 9190
 
 ### Rest server
-# gungnir.rest.server: "localhost:9191"
-# persistent.deser.queue.size: 128
-# persistent.deser.parallelism: 32
+# gungnir.rest.server.port: 9191
 # tracking.cookie.maxage: 864000000
-# persistent.emitter.queue.size: 128
+# persistent.deser.queue.size: 1024
+# persistent.deser.parallelism: 32
+# persistent.emitter.queue.size: 1024
 # persistent.emitter.parallelism: 32
+# persistent.emit.tuples.max: 8
+# persistent.emit.tuples.max.size: 1024
+
+### Admin server
+# gungnir.admin.server.port: 9192
+# gungnir.admin.server.backlog: 100
 
 ### Cluster
 storm.cluster.mode: "distributed"
+# storm.nimbus.host: "localhost"
 
 ### Topology
 # storm.topology.workers: 1
@@ -35,8 +42,9 @@ storm.cluster.mode: "distributed"
 # default.parallelism: 1
 
 ### Metastore
-# metastore.mongodb.servers:
-#   - "localhost:27017"
+metastore: org.gennai.gungnir.metastore.MongoDbMetaStore
+metastore.mongodb.servers:
+  - "localhost:27017"
 
 ### Tuple store
 # kafka.brokers:
@@ -44,7 +52,7 @@ storm.cluster.mode: "distributed"
 # kafka.auto.commit.interval: 10000
 # kafka.zookeeper.servers:
 #   - "localhost:2181"
-# kafka.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
+# kafka.zookeeper.session.timeout: 6000
 # kafka.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
 # kafka.zookeeper.sync.timeout: 2000
 # kafka.zookeeper.retry.times: ${storm.zookeeper.retry.times}
@@ -62,12 +70,13 @@ storm.cluster.mode: "distributed"
 # kafka.monitor.zookeeper.sync.timeout: 2000
 
 ### Component
-# component.snapshot.queue.size: 128
+# component.snapshot.queue.size: 1024
 # component.snapshot.parallelism: 32
 
 ### Operator
-# spout.operator.queue.size: 128
-# emit.operator.queue.size: 128
+# spout.operator.queue.size: 1024
+# emit.operator.queue.size: 1024
+# emit.operator.emit.tuples.max: 8
 
 ### Processor
 # mongo.fetch.servers:
@@ -82,9 +91,4 @@ storm.cluster.mode: "distributed"
 #   - reporter: org.gennai.gungnir.metrics.CsvMetricsReporter
 #     interval.secs: 60
 #     output.dir: ${gungnir.home}/logs
-
-### Client
-# gungnir.client.connection.timeout: 3000
-# gungnir.client.request.retries: 3
-# gungnir.client.response.timeout: 10000
 

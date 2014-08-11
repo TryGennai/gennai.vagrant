@@ -10,9 +10,9 @@
 stormBin=__STORM_INSTALL_DIR__/storm/bin/storm
 stormSvc=$(echo $0 | cut -d'-' -f2)
 desc="Storm $stormSvc daemon"
-outFile="/var/log/storm/storm-$stormSvc.out"
+outFile=__STORM_INSTALL_DIR__/storm/logs/storm-$stormSvc.out
 stormUser=__STORM_USER__
-pidFile=/var/run/storm/storm-$stormSvc.pid
+pidFile=__STORM_INSTALL_DIR__/storm/storm-$stormSvc.pid
  
 if ! [ -f $stormBin ]; then
   echo "storm binary not found."

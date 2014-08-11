@@ -8,11 +8,10 @@
 # description: Starts and stops gungnir-server
 . /etc/init.d/functions
 serverBin=__GUNGNIR_INSTALL_DIR__/gungnir-server/bin/server.sh
-# stormSvc=$(echo $0 | cut -d'-' -f2)
 desc="GungnirServer daemon"
-outFile="/var/log/gungnir/gungnir-server.out"
+outFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.out
 serverUser=__GUNGNIR_USER__
-pidFile=/var/run/gungnir-server.pid
+pidFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.pid
  
 if ! [ -f $serverBin ]; then
   echo "GungnirServer binary not found."
@@ -25,7 +24,7 @@ fi
  
 start() {
   echo -n "Starting $desc : "
-  su $serverUser -c "$serverBin start >>$outFile 2>&1" && success || failure $"$desc start"
+  sudo -u $serverUser -i $serverBin start >>$outFile 2>&1 && success || failure $"$desc start"
   echo
   sleep 3
   RETVAL=$?
@@ -35,7 +34,7 @@ start() {
  
 stop() {
   echo -n "Shutting down $desc : "
-  su $serverUser -c "$serverBin stop >>$outFile 2>&1" && success || failure $"$desc stop"
+  sudo -u $serverUser -i $serverBin stop >>$outFile 2>&1 && success || failure $"$desc stop"
   echo
   [ -e $pidFile ] && rm $pidFile
 }

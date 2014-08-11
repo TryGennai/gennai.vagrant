@@ -4,14 +4,26 @@ echo "in mongod."
 
 MONGO_SERVICE=off
 
+# mode check.
+. /vagrant/provision/shell/common.sh
+MODE=`getMode`
+case ${MODE} in
+	"minimum")
+		install=false
+		service=off
+		;;
+	*)
+		;;
+esac
+
 # source config and override settings.
-if [ -f "/vagrant/files/config.ini" ] ; then
+if [ -f "/vagrant/config.ini" ] ; then
 	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
 		-e 's/;.*$//' \
 		-e 's/[[:space:]]*$//' \
 		-e 's/^[[:space:]]*//' \
 		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/files/config.ini \
+		< /vagrant/config.ini \
 		| sed -n -e "/^\[mongodb\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
 
 	if [ ! -z "${install}" -a "${install}" = "false" ] ; then

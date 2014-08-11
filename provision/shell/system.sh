@@ -41,4 +41,7 @@ echo "*    hard    nofile    32768" >> /etc/security/limits.conf
 
 sed -i -e 's/^\(\*.*\)/#\1\n\*\tsoft\tnproc\t63228\n\*\thard\tnproc\t63228/g' /etc/security/limits.d/90-nproc.conf
 
-# security/limits.conf
+#--------------------------------------------------
+echo " - install git."
+yum install -y git > /dev/null 2>&1
+#EOF
