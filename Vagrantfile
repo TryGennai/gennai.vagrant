@@ -19,4 +19,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	config.vm.provision "shell", path: "provision/shell/mongod.sh"
 	config.vm.provision "shell", path: "provision/shell/storm.sh"
 	config.vm.provision "shell", path: "provision/shell/gungnir.sh"
+	config.vm.provision "shell", path: "provision/shell/sample.sh"
 end

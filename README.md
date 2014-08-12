@@ -8,6 +8,7 @@
 4. [サービス](#service)
 5. [VMに関して](#vm)
 6. [メモリ](#memory)
+7. [サンプル](#sample)
 
 
 
@@ -114,6 +115,7 @@ $ gungnir -u root -p gennai
 |:--:|:--|:--|:--|:--|
 |common|mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
 |common|hostname|[STRING]/off|off|
+|common|sample|yes/no|no|
 |zookeeper|install|true/false|true|
 |zookeeper|dir|-|/opt|
 |zookeeper|version|-|3.4.5|
@@ -245,8 +247,8 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 |4|Storm supervisor|256M|実メモリの1/64|
 |5|Storm worker|768M|実メモリの1/64|
 |6|Storm UI|768M|実メモリの1/64|
-|6|GungnirServer|実メモリの1/4|実メモリの1/64|
-|7|GungnirClient|実メモリの1/4|実メモリの1/64|
+|7|GungnirServer|実メモリの1/4|実メモリの1/64|
+|8|GungnirClient|実メモリの1/4|実メモリの1/64|
 
 ### mode: minimum
 
@@ -277,3 +279,19 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 |5|Storm worker|768M|実メモリの1/64|
 |6|GungnirServer|実メモリの1/4|実メモリの1/64|
 |7|GungnirClient|実メモリの1/4|実メモリの1/64|
+
+##<a name="sample"></a> サンプル
+
+[config.ini](#config)にて下記の記述をするとサンプルをVMに配置し、実行する事ができます。
+
+```
+[common]
+sample=yes
+```
+
+サンプルはホームディレクトリにsampleディレクトリを作成し、いくつかのqueryを配置します。また、gennaiユーザを事前に作成しますので、VM起動後は即下記コマンドを実行する事が可能です。
+
+```
+$ gungnir -u gennai -p gennai
+```
+

@@ -45,8 +45,7 @@ restart() {
 }
  
 status() {
-  # pid=$(pgrep -f backtype.storm.daemon.$stormSvc)
-  pid=`cat __GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir_server.pid`
+  pid=`cat ${pidFile}`
     
   if [ -z $pid ]; then
     echo "GungnirServer is NOT running."
