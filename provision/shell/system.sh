@@ -5,7 +5,22 @@ echo "in system."
 # yum update -y > /dev/null 2>&1
 
 #--------------------------------------------------
+echo " - hostname."
+if [ -f "/vagrant/config.ini" ] ; then
+	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
+		-e 's/;.*$//' \
+		-e 's/[[:space:]]*$//' \
+		-e 's/^[[:space:]]*//' \
+		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
+		< /vagrant/config.ini \
+		| sed -n -e "/^\[common\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
+fi
+if [ ! -z "${hostname}" -a "${hostname}" != "off" ] ;  then
+	sed -i -e "s/^\(HOSTNAME=\).*/\1${hostname}/g" /etc/sysconfig/network
+	hostname ${hostname}
+fi
 
+#--------------------------------------------------
 echo " - service stop."
 
 service iptables stop

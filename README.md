@@ -26,8 +26,8 @@
 
 JDK, ZooKeeper, GungnirClientにはそれぞれPATHを通しています。
 
-VM起動後、各サービスを起動すれば下記コマンドを実行する事ができます。
-各サービスの起動方法に関しては[サービス](#service)を参照してください。
+VM起動後、各サービスを起動すれば下記コマンドを実行する事ができます。  
+各サービスの起動方法に関しては[サービス](#service)を参照してください。  
 
 ```
 $ gungnir -u root -p gennai
@@ -37,7 +37,7 @@ $ gungnir -u root -p gennai
 
 ##<a name="mode"></a>モード(mode)
 
-下記2つのモードを設定する事ができます。モードによってインストールされるアプリケーションが異なります。
+下記3つのモードを設定する事ができます。モードによってインストールされるアプリケーションが異なります。
 
 * [minimum](#minimummode)
 * [local](#localmode)
@@ -49,7 +49,7 @@ $ gungnir -u root -p gennai
 
 ###<a name="minimummode"></a>minimum mode
 
-極簡易な動作確認等に用いるモードです。最低限の機能のみインストール・設定されます。
+極簡易な動作確認等に用いるモードです。最低限の機能のみインストール・設定されます。  
 インストールされるアプリケーションは下記の通りです。
 
 |#|Application/Server|備考|
@@ -59,14 +59,14 @@ $ gungnir -u root -p gennai
 
 `vagrant up`後、各種サービスを起動して使用する事が可能です。
 
-※ GungnirServerはInMemoryMetStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。
-※ MongoDBはインストールされないので、EMIT句でmongo_persistを用いる事はできません。
-※ Kafkaに同梱されているZooKeeperを利用します。
+※ GungnirServerはInMemoryMetStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。  
+※ MongoDBはインストールされないので、EMIT句でmongo_persistを用いる事はできません。  
+※ Kafkaに同梱されているZooKeeperを利用します。  
 
 ###<a name="localmode"></a>local mode
 
-簡易な動作確認等に用いるモードです。StormをインストールせずGungnirServerをローカルモードで利用します。
-その為、分散処理は確認できませんが、GungnirServerの一通りの機能を試す事ができます。
+簡易な動作確認等に用いるモードです。StormをインストールせずGungnirServerをローカルモードで利用します。  
+その為、分散処理は確認できませんが、GungnirServerの一通りの機能を試す事ができます。  
 
 インストールされるアプリケーションは下記の通りです。
 
@@ -83,7 +83,7 @@ $ gungnir -u root -p gennai
 
 ###<a name="distributedmode"></a>distributed mode
 
-本番環境と同等の機能を確認する事ができるモードです。
+本番環境と同等の機能を確認する事ができるモードです。  
 ただしCPU・割当メモリをデフォルト設定値より増強しておくのが望ましいです。([参照](#vm))
 
 インストールされるアプリケーションは下記の通りです。
@@ -96,12 +96,13 @@ $ gungnir -u root -p gennai
 |4|Storm nimbus|-|
 |5|Storm supervisor|-|
 |6|Storm UI|-|
-|7|GungnirServer|MongoDbMetaStore|
+|7|Storm LogViewer|-|
+|8|GungnirServer|MongoDbMetaStore|
 
 `vagrant up`後、各種サービスを起動して使用する事が可能です。
 
-※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもめた情報は保持されます。
-※ Storm UIは起動しなくても使用する事が可能です。
+※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもめた情報は保持されます。  
+※ Storm UIは起動しなくても使用する事が可能です。  
 
 
 
@@ -109,34 +110,35 @@ $ gungnir -u root -p gennai
 
 `files/config.ini`に各種設定を書く事ができます。
 
-|#|Section Name|Key|Value|default Value|
+|Section Name|Key|Value|default Value|
 |:--:|:--|:--|:--|:--|
-|1|common|mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
-|2|zookeeper|install|true/false|true|
-|3|zookeeper|dir|-|/opt|
-|4|zookeeper|version|-|3.4.5|
-|5|zookeeper|user|-|vagrant|
-|6|zookeeper|group|-|vagrant|
-|7|zookeeper|service|on/off|off|
-|8|kafka|install|true/false|true|
-|9|kafka|version|-|0.8.0|
-|10|kafka|scala|-|2.8.0|
-|11|kafka|user|-|vagrant|
-|12|kafka|group|-|vagrant|
-|13|kafka|service|on/off|off|
-|14|mongodb|install|true/false|true|
-|15|mongodb|service|on/off|off|
-|16|storm|install|true/false|true|
-|17|storm|dir|-|/opt|
-|18|storm|version|-|0.9.0.1|
-|19|storm|user|-|vagrant|
-|20|storm|group|-|vagrant|
-|21|storm|service|on/off|off|
-|22|gungnir|install|true/false|true|
-|23|gungnir|dir|-|/opt|
-|24|gungnir|user|-|vagrant|
-|25|gungnir|group|-|vagrant|
-|26|gungnir|service|on/off|off|
+|common|mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
+|common|hostname|[STRING]/off|off|
+|zookeeper|install|true/false|true|
+|zookeeper|dir|-|/opt|
+|zookeeper|version|-|3.4.5|
+|zookeeper|user|-|vagrant|
+|zookeeper|group|-|vagrant|
+|zookeeper|service|on/off|off|
+|kafka|install|true/false|true|
+|kafka|version|-|0.8.0|
+|kafka|scala|-|2.8.0|
+|kafka|user|-|vagrant|
+|kafka|group|-|vagrant|
+|kafka|service|on/off|off|
+|mongodb|install|true/false|true|
+|mongodb|service|on/off|off|
+|storm|install|true/false|true|
+|storm|dir|-|/opt|
+|storm|version|-|0.9.0.1|
+|storm|user|-|vagrant|
+|storm|group|-|vagrant|
+|storm|service|on/off|off|
+|gungnir|install|true/false|true|
+|gungnir|dir|-|/opt|
+|gungnir|user|-|vagrant|
+|gungnir|group|-|vagrant|
+|gungnir|service|on/off|off|
 
 
 
@@ -151,14 +153,15 @@ $ gungnir -u root -p gennai
 |3|MongoDB|-|○|○|※2|
 |4|Storm nimbus|-|-|○|※3|
 |5|Storm supervisor|-|-|○|※3|
-|6|Storm UI|-|-|-|※3 ※4|
-|7|GungnirServer|○|○|○||
+|6|Storm UI|-|-|-|※3,※4|
+|7|Storm LogViewer|-|-|-|※3,※5|
+|8|GungnirServer|○|○|○||
 
-※1: Kafkaに同梱されているZooKeeperを利用します。
-※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。
-※3: distributedモードの場合のみインストールされます。
-※4: `sudo service storm-ui start`で起動してください。config.iniでservice=trueとしてもUIは起動対象外です。
-
+※1: Kafkaに同梱されているZooKeeperを利用します。  
+※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。  
+※3: distributedモードの場合のみインストールされます。  
+※4: `sudo service storm-ui start`で起動してください。  config.iniでservice=trueとしてもUIは起動対象外です。  
+※5: `sudo service storm-logviewer start`で起動してください。config.iniでservice=trueとしてもLogViewerは対象外です。  
 
 各種サービスの起動と停止は下記を参照してください。
 
@@ -198,6 +201,12 @@ $ sudo service storm-supervisor [start|stop]
 $ sudo service storm-ui [start|stop]
 ```
 
+###<a name="logviewer"></a> Storm LogViewer
+
+```
+$ sudo service storm-logviewer [start|stop]
+```
+
 ###<a name="gungnir"></a> GungnirServer
 
 ```
@@ -208,8 +217,8 @@ $ sudo service gungnir-server [start|stop]
 
 ##<a name='vm'></a> VMに関して
 
-現時点ではメモリは各種フォルト設定で起動されています。
-よって重い処理を実行するとメモリが足りなくなる恐れがあります。
+現時点ではメモリは各種フォルト設定で起動されています。  
+よって重い処理を実行するとメモリが足りなくなる恐れがあります。  
 
 Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホストマシンの性能によって調整してください。
 

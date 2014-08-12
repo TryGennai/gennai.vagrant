@@ -1,10 +1,9 @@
 ########### These MUST be filled in for a storm configuration
 storm.zookeeper.servers:
     - "localhost"
-#     - "server2"
 #
 nimbus.host: "localhost"
-storm.local.dir: /var/run/storm/storm-local
+storm.local.dir: /data/storm
 #
 #
 # ##### These may optionally be filled in:

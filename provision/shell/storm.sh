@@ -117,13 +117,11 @@ ln -s ${STORM_INSTALL_DIR}/storm-${STORM_VERSION} ${STORM_INSTALL_DIR}/storm
 
 echo " - setting."
 cp /vagrant/files/storm.yaml ${STORM_INSTALL_DIR}/storm/conf/
-mkdir -p /var/log/storm
-mkdir -p /var/run/storm
+mkdir -p /data/storm
 
 echo " - chown."
 chown -R ${STORM_USER}:${STORM_GROUP} ${STORM_INSTALL_DIR}/storm-${STORM_VERSION}
-chown -R ${STORM_USER}:${STORM_GROUP} /var/log/storm
-chown -R ${STORM_USER}:${STORM_GROUP} /var/run/storm
+chown -R ${STORM_USER}:${STORM_GROUP} /data/storm
 
 echo " - service. : ${STORM_SERVICE}"
 S_STORM_INSTALL_DIR=`echo ${STORM_INSTALL_DIR} | sed -e "s/\//\\\\\\\\\//g"`
@@ -146,9 +144,16 @@ sed \
 	/vagrant/files/storm-ui.initd > /etc/rc.d/init.d/storm-ui
 chmod +x /etc/rc.d/init.d/storm-ui
 
+sed \
+	-e "s/__STORM_INSTALL_DIR__/${S_STORM_INSTALL_DIR}/g" \
+	-e "s/__STORM_USER__/${STORM_USER}/g" \
+	/vagrant/files/storm-logviewer.initd > /etc/rc.d/init.d/storm-logviewer
+chmod +x /etc/rc.d/init.d/storm-logviewer
+
 chkconfig --add storm-nimbus
 chkconfig --add storm-supervisor
 chkconfig --add storm-ui
+chkconfig --add storm-logviewer
 
 if [ "${STORM_SERVICE}" = "on" ] ; then
 	chkconfig storm-nimbus on
@@ -159,6 +164,9 @@ else
 	chkconfig storm-nimbus off
 	chkconfig storm-supervisor off
 fi
+
+chkconfig storm-ui off
+chkconfig storm-logviewer off
 
 # cleaning
 rm -rf /tmp/zeromq-2.1.7.tar.gz
