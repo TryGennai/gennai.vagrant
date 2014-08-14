@@ -1,0 +1,40 @@
+### Common
+# common.mode: "distributed"
+common.hostname: off
+common.sample: yes
+
+### ZooKeeper
+# zookeeper.install: true
+# zookeeper.dir: "/opt"
+# zookeeper.version: 3.4.5
+# zookeeper.user: "vagrant"
+# zookeeper.group: "vagrant"
+zookeeper.service: on
+
+### Kafka
+# kafka.install: true
+# kafka.dir: "/opt"
+# kafka.version: 0.8.0
+# kafka.scala: 2.8.0
+# kafka.user: "vagrant"
+# kafka.group: "vagrant"
+kafka.service: on
+
+### MongoDB
+# mongodb.install: true
+mongodb.service: on
+
+### Storm
+# storm.install: true
+# storm.dir: "/opt"
+# storm.version: 0.9.0.1
+# storm.user: "vagrant"
+# storm.group: "vagrant"
+storm.service: on
+
+### gungnir
+# gungnir.install: true
+# gungnir.dir: "/opt"
+# gungnir.user: "vagrant"
+# gungnir.group: "vagrant"
+gungnir.service: on

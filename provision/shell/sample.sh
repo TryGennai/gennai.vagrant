@@ -2,20 +2,13 @@
 
 echo "in sample."
 
-# source config and override settings.
-if [ -f "/vagrant/config.ini" ] ; then
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[common\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
+. /vagrant/provision/shell/common.sh
+getConfig common
 
-	if [ -z "${sample}" -o "${sample}" != "yes" ] ; then
-		echo " - not install."
-		exit 0
-	fi
+# source config and override settings.
+if [ -z "${sample}" -o "${sample}" != "yes" ] ; then
+	echo " - not install."
+	exit 0
 fi
 
 # install check

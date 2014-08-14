@@ -4,7 +4,7 @@
 
 1. [アプリケーション](#application)
 2. [モード(mode)](#mode)
-3. [config.ini](#config)
+3. [config.yaml](#config)
 4. [サービス](#service)
 5. [VMに関して](#vm)
 6. [メモリ](#memory)
@@ -44,7 +44,7 @@ $ gungnir -u root -p gennai
 * [local](#localmode)
 * [distributed](#distributedmode)
 
-デフォルトでは"distributed"モードで起動されます。モードの変更は[config.ini](#config)で行います。
+デフォルトでは"distributed"モードで起動されます。モードの変更は[config.yaml](#config)で行います。
 
 ※ 現状では`vagrant up`後にmodeを変更しないでください。
 
@@ -107,40 +107,40 @@ $ gungnir -u root -p gennai
 
 
 
-##<a name="config"></a>config.ini
+##<a name="config"></a>config.yaml
 
-`files/config.ini`に各種設定を書く事ができます。
+`config.yaml`に各種設定を書く事ができます。
 
-|Section Name|Key|Value|default Value|
-|:--:|:--|:--|:--|:--|
-|common|mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
-|common|hostname|[STRING]/off|off|
-|common|sample|yes/no|no|
-|zookeeper|install|true/false|true|
-|zookeeper|dir|-|/opt|
-|zookeeper|version|-|3.4.5|
-|zookeeper|user|-|vagrant|
-|zookeeper|group|-|vagrant|
-|zookeeper|service|on/off|off|
-|kafka|install|true/false|true|
-|kafka|version|-|0.8.0|
-|kafka|scala|-|2.8.0|
-|kafka|user|-|vagrant|
-|kafka|group|-|vagrant|
-|kafka|service|on/off|off|
-|mongodb|install|true/false|true|
-|mongodb|service|on/off|off|
-|storm|install|true/false|true|
-|storm|dir|-|/opt|
-|storm|version|-|0.9.0.1|
-|storm|user|-|vagrant|
-|storm|group|-|vagrant|
-|storm|service|on/off|off|
-|gungnir|install|true/false|true|
-|gungnir|dir|-|/opt|
-|gungnir|user|-|vagrant|
-|gungnir|group|-|vagrant|
-|gungnir|service|on/off|off|
+|Propertyless|Value|default Value|
+|:--|:--|:--|:--|
+|common.mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
+|common.hostname|[STRING]/off|off|
+|common.sample|yes/no|no|
+|zookeeper.install|true/false|true|
+|zookeeper.dir|-|/opt|
+|zookeeper.version|-|3.4.5|
+|zookeeper.user|-|vagrant|
+|zookeeper.group|-|vagrant|
+|zookeeper.service|on/off|off|
+|kafka.install|true/false|true|
+|kafka.version|-|0.8.0|
+|kafka.scala|-|2.8.0|
+|kafka.user|-|vagrant|
+|kafka.group|-|vagrant|
+|kafka.service|on/off|off|
+|mongodb.install|true/false|true|
+|mongodb.service|on/off|off|
+|storm.install|true/false|true|
+|storm.dir|-|/opt|
+|storm.version|-|0.9.0.1|
+|storm.user|-|vagrant|
+|storm.group|-|vagrant|
+|storm.service|on/off|off|
+|gungnir.install|true/false|true|
+|gungnir.dir|-|/opt|
+|gungnir.user|-|vagrant|
+|gungnir.group|-|vagrant|
+|gungnir.service|on/off|off|
 
 
 
@@ -162,8 +162,8 @@ $ gungnir -u root -p gennai
 ※1: Kafkaに同梱されているZooKeeperを利用します。  
 ※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。  
 ※3: distributedモードの場合のみインストールされます。  
-※4: `sudo service storm-ui start`で起動してください。  config.iniでservice=trueとしてもUIは起動対象外です。  
-※5: `sudo service storm-logviewer start`で起動してください。config.iniでservice=trueとしてもLogViewerは対象外です。  
+※4: `sudo service storm-ui start`で起動してください。  config.yamlでservice=trueとしてもUIは起動対象外です。  
+※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。  
 
 各種サービスの起動と停止は下記を参照してください。
 
@@ -282,7 +282,7 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 
 ##<a name="sample"></a> サンプル
 
-[config.ini](#config)にて下記の記述をするとサンプルをVMに配置し、実行する事ができます。
+[config.yaml](#config)にて下記の記述をするとサンプルをVMに配置し、実行する事ができます。
 
 ```
 [common]

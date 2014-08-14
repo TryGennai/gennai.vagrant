@@ -14,6 +14,9 @@ export PATH=${JAVA_HOME}/bin:${PATH}
 
 # mode check.
 . /vagrant/provision/shell/common.sh
+getConfig common
+getConfig storm
+
 STORM_MODE=`getMode`
 case ${STORM_MODE} in
 	"distributed")
@@ -24,39 +27,29 @@ case ${STORM_MODE} in
 esac
 
 # source config and override settings.
-if [ -f "/vagrant/config.ini" ] ; then
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[storm\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
+if [ ! -z "${install}" -a "${install}" = "false" ] ; then
+	echo " - not install."
+	exit 0
+fi
 
-	if [ ! -z "${install}" -a "${install}" = "false" ] ; then
-		echo " - not install."
-		exit 0
-	fi
+if [ ! -z "${dir}" ] ; then
+	STORM_INSTALL_DIR=${dir}
+fi
 
-	if [ ! -z "${dir}" ] ; then
-		STORM_INSTALL_DIR=${dir}
-	fi
+if [ ! -z "${version}" ] ; then
+	STORM_VERSION=${version}
+fi
 
-	if [ ! -z "${version}" ] ; then
-		STORM_VERSION=${version}
-	fi
+if [ ! -z "${user}" ] ; then
+	STORM_USER=${user}
+fi
 
-	if [ ! -z "${user}" ] ; then
-		STORM_USER=${user}
-	fi
+if [ ! -z "${group}" ] ; then
+	STORM_GROUP=${group}
+fi
 
-	if [ ! -z "${group}" ] ; then
-		STORM_GROUP=${group}
-	fi
-
-	if [ ! -z "${service}" -a "${service}" = "on" ] ; then
-		STORM_SERVICE=${service}
-	fi
+if [ ! -z "${service}" -a "${service}" = "on" ] ; then
+	STORM_SERVICE=${service}
 fi
 
 # install check.

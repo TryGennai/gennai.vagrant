@@ -12,6 +12,9 @@ ZOOKEEPER=off
 
 # mode check.
 . /vagrant/provision/shell/common.sh
+getConfig common
+getConfig kafka
+
 MODE=`getMode`
 case ${MODE} in
 	"minimum")
@@ -20,43 +23,33 @@ case ${MODE} in
 esac
 
 # source config and override settings.
-if [ -f "/vagrant/config.ini" ] ; then
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[kafka\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
+if [ ! -z "${install}" -a "${install}" = false ] ; then
+	echo " - not install."
+	exit 0
+fi
 
-	if [ ! -z "${install}" -a "${install}" = false ] ; then
-		echo " - not install."
-		exit 0
-	fi
+if [ ! -z "${dir}" ] ;  then
+	KAFKA_INSTALL_DIR=${dir}
+fi
 
-	if [ ! -z "${dir}" ] ;  then
-		KAFKA_INSTALL_DIR=${dir}
-	fi
+if [ ! -z "${version}" ] ; then
+	KAFKA_VERSION=${version}
+fi
 
-	if [ ! -z "${version}" ] ; then
-		KAFKA_VERSION=${version}
-	fi
+if [ ! -z "${scala}" ] ; then
+	SCALA_VERSION=${scala}
+fi
 
-	if [ ! -z "${scala}" ] ; then
-		SCALA_VERSION=${scala}
-	fi
+if [ ! -z "${user}" ] ; then
+	KAFKA_USER=${user}
+fi
 
-	if [ ! -z "${user}" ] ; then
-		KAFKA_USER=${user}
-	fi
+if [ ! -z ${group} ] ; then
+	KAFKA_GROUP=${group}
+fi
 
-	if [ ! -z ${group} ] ; then
-		KAFKA_GROUP=${group}
-	fi
-
-	if [ ! -z "${service}" -a "${service}" = "on" ] ; then
-		KAFKA_SERVICE=on
-	fi
+if [ ! -z "${service}" -a "${service}" = "on" ] ; then
+	KAFKA_SERVICE=on
 fi
 
 KAFKA_TAR_FILE=kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tar.gz

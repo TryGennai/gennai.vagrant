@@ -6,6 +6,8 @@ MONGO_SERVICE=off
 
 # mode check.
 . /vagrant/provision/shell/common.sh
+getConfig mongodb
+
 MODE=`getMode`
 case ${MODE} in
 	"minimum")
@@ -17,24 +19,16 @@ case ${MODE} in
 esac
 
 # source config and override settings.
-if [ -f "/vagrant/config.ini" ] ; then
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[mongodb\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
-
-	if [ ! -z "${install}" -a "${install}" = "false" ] ; then
-		echo " - not install."
-		exit 0
-	fi
-	if [ ! -z "${service}" -a "${service}" = "on" ] ; then
-		MONGO_SERVICE=${service}
-	fi
+if [ ! -z "${install}" -a "${install}" = "false" ] ; then
+	echo " - not install."
+	exit 0
 fi
 
+if [ ! -z "${service}" -a "${service}" = "on" ] ; then
+	MONGO_SERVICE=${service}
+fi
+
+# install
 if [ -f /etc/yum.repos.d/mongodb.repo ] ; then
 	echo " - already."
 	exit

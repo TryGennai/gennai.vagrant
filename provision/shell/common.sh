@@ -3,14 +3,6 @@
 DEFAULT_MODE=distributed
 
 function getMode() {
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[common\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
-
 	if [ -z "${mode}" ] ; then
 		echo ${DEFAULT_MODE}
 		return
@@ -31,3 +23,18 @@ function getMode() {
 			;;
 	esac
 }
+
+
+function getConfig() {
+	if [ -f "/vagrant/config.yaml" ] ; then
+		SECTION=$1
+		eval `sed -e "s/[[:space:]]*\:[[:space:]]*/=/g" \
+			-e "s/#.*$//" \
+			-e "s/[[:space:]]*$//" \
+			-e "s/^[[:space:]]*//" \
+			-e "s/^\(.*\)=\([^\"']\)$/\1=\"\2\"/" \
+			< /vagrant/config.yaml \
+			| grep -v "^#" | grep "^${SECTION}" | sed -e "s/^${SECTION}\.//g"`
+	fi
+}
+# EOF

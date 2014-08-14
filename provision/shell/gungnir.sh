@@ -10,36 +10,30 @@ GUNGNIR_USER=vagrant
 GUNGNIR_GROUP=vagrant
 GUNGNIR_SERVICE=off
 
+. /vagrant/provision/shell/common.sh
+getConfig common
+getConfig gungnir
+
 # source config and override settings.
-if [ -f "/vagrant/config.ini" ] ; then
-	eval `sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
-		-e 's/;.*$//' \
-		-e 's/[[:space:]]*$//' \
-		-e 's/^[[:space:]]*//' \
-		-e "s/^\(.*\)=\([^\"']*\)$/\1=\"\2\"/" \
-		< /vagrant/config.ini \
-		| sed -n -e "/^\[gungnir\]/,/^\s*\[/{/^[^;].*\=.*/p;}"`
+if [ ! -z "${install}" -a "${install}" = false ] ; then
+	echo " - not install."
+	exit 0
+fi
 
-	if [ ! -z "${install}" -a "${install}" = false ] ; then
-		echo " - not install."
-		exit 0
-	fi
+if [ ! -z "${dir}" ] ; then
+	GUNGNIR_INSTALL_DIR=${dir}
+fi
 
-	if [ ! -z "${dir}" ] ; then
-		GUNGNIR_INSTALL_DIR=${dir}
-	fi
+if [ ! -z "${user}" ] ; then
+	GUNGNIR_USER=${user}
+fi
 
-	if [ ! -z "${user}" ] ; then
-		GUNGNIR_USER=${user}
-	fi
+if [ ! -z "${group}" ] ; then
+	GUNGNIR_GROUP=${group}
+fi
 
-	if [ ! -z "${group}" ] ; then
-		GUNGNIR_GROUP=${group}
-	fi
-
-	if [ ! -z "${service}" -a "${service}" = "on" ] ; then
-		GUNGNIR_SERVICE=${service}
-	fi
+if [ ! -z "${service}" -a "${service}" = "on" ] ; then
+	GUNGNIR_SERVICE=${service}
 fi
 
 # install check
@@ -77,7 +71,6 @@ ln -s ${GUNGNIR_INSTALL_DIR}/gungnir-client-${GUNGNIR_VERSION} ${GUNGNIR_INSTALL
 echo " - setting."
 
 # mode check.
-. /vagrant/provision/shell/common.sh
 MODE=`getMode`
 cp /vagrant/files/gungnir.yaml.${MODE} ${GUNGNIR_INSTALL_DIR}/gungnir-server/conf/gungnir.yaml
 
