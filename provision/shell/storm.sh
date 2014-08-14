@@ -9,6 +9,9 @@ STORM_USER=vagrant
 STORM_GROUP=vagrant
 STORM_SERVICE=off
 
+export JAVA_HOME=/usr/java/default
+export PATH=${JAVA_HOME}/bin:${PATH}
+
 # mode check.
 . /vagrant/provision/shell/common.sh
 STORM_MODE=`getMode`
@@ -81,7 +84,7 @@ yum install -y gcc gcc-c++ git autoconf libtool libuuid-devel >/dev/null 2>&1
 echo " - zeromq."
 if [ ! -d /usr/local/src/zeromq-2.1.7 ] ; then
 	cd /tmp
-	curl -L -O https://s3-ap-northeast-1.amazonaws.com/gennai/binary/zeromq-2.1.7.tar.gz >/dev/null 2>&1
+	curl -L -O http://download.zeromq.org/zeromq-2.1.7.tar.gz >/dev/null 2>&1
 	tar zxf zeromq-2.1.7.tar.gz -C /usr/local/src
 	cd /usr/local/src/zeromq-2.1.7
 	./autogen.sh >/dev/null 2>&1
@@ -95,10 +98,10 @@ fi
 # jzmq
 echo " - jzmq."
 if [ ! -d /usr/local/src/jzmq ] ; then
-	cd /tmp
-	curl -L -O https://s3-ap-northeast-1.amazonaws.com/gennai/binary/jzmq2.tar.gz >/dev/null 2>&1
-	tar zxf jzmq2.tar.gz -C /usr/local/src
-	cd /usr/local/src/jzmq
+	cd /usr/local/src
+	git clone https://github.com/zeromq/jzmq >/dev/null 2>&1
+	cd ./jzmq
+	git checkout refs/tags/v2.1.0 >/dev/null 2>&1
 	./autogen.sh >/dev/null 2>&1
 	./configure >/dev/null 2>&1
 	make >/dev/null 2>&1
@@ -109,7 +112,7 @@ fi
 
 cd /tmp
 echo " - download. : ${STORM_TAR_FILE}"
-curl -L -O https://s3-ap-northeast-1.amazonaws.com/gennai/binary/${STORM_TAR_FILE} >/dev/null 2>&1
+curl -L -O https://dl.dropboxusercontent.com/s/tqdpoif32gufapo/${STORM_TAR_FILE} >/dev/null 2>&1
 
 echo " - instal. : ${STORM_INSTALL_DIR}"
 tar zxf ${STORM_TAR_FILE} -C ${STORM_INSTALL_DIR}
