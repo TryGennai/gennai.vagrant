@@ -17,7 +17,9 @@ fi
 echo " - service stop."
 
 service iptables stop
+chkconfig iptables off
 service postfix stop
+chkconfig postfix off
 
 #--------------------------------------------------
 echo " - check localtime."
