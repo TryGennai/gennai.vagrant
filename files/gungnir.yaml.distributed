@@ -36,7 +36,7 @@ storm.cluster.mode: "distributed"
 # storm.nimbus.host: "localhost"
 
 ### Topology
-# storm.topology.workers: 1
+# topology.workers: 1
 # topology.status.check.timeout: 120000
 # topology.status.check.interval: 5000
 # default.parallelism: 1
@@ -91,4 +91,9 @@ metastore.mongodb.servers:
 #   - reporter: org.gennai.gungnir.metrics.CsvMetricsReporter
 #     interval.secs: 60
 #     output.dir: ${gungnir.home}/logs
+# component.metrics.interval.secs: 60
+# topology.metrics.enabled: false
+# topology.metrics.consumer: backtype.storm.metric.LoggingMetricsConsumer
+# topology.metrics.consumer.parallelism: 1
+# topology.metrics.interval.secs: 60
 
