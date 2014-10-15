@@ -2,8 +2,8 @@
 
 echo "in gungnir."
 
-GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20140930.tar.gz
-GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20140930.tar.gz
+GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20141014.tar.gz
+GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20141014.tar.gz
 GUNGNIR_VERSION=0.0.1
 GUNGNIR_INSTALL_DIR=/opt
 GUNGNIR_USER=vagrant

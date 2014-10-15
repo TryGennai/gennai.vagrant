@@ -2,8 +2,8 @@
 
 echo "in storm."
 
-STORM_VERSION=0.9.0.1
-STORM_TAR_FILE=storm-${STORM_VERSION}.tar.gz
+STORM_VERSION=0.9.2
+STORM_TAR_FILE=apache-storm-${STORM_VERSION}-incubating.tar.gz
 STORM_INSTALL_DIR=/opt
 STORM_USER=vagrant
 STORM_GROUP=vagrant
@@ -53,7 +53,7 @@ if [ ! -z "${service}" -a "${service}" = "on" ] ; then
 fi
 
 # install check.
-if [ -d ${STORM_INSTALL_DIR}/storm-${STORM_VERSION} ] ; then
+if [ -d ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating ] ; then
 	echo " - already."
 	exit 0
 fi
@@ -70,54 +70,23 @@ fi
 
 ### main
 
-echo " - packages install."
-yum install -y gcc gcc-c++ git autoconf libtool libuuid-devel >/dev/null 2>&1
-
-# zeromq
-echo " - zeromq."
-if [ ! -d /usr/local/src/zeromq-2.1.7 ] ; then
-	cd /tmp
-	curl -L -O http://download.zeromq.org/zeromq-2.1.7.tar.gz >/dev/null 2>&1
-	tar zxf zeromq-2.1.7.tar.gz -C /usr/local/src
-	cd /usr/local/src/zeromq-2.1.7
-	./autogen.sh >/dev/null 2>&1
-	./configure >/dev/null 2>&1
-	make >/dev/null 2>&1
-	make install >/dev/null 2>&1
-else
-	echo " -- already."
-fi
-
-# jzmq
-echo " - jzmq."
-if [ ! -d /usr/local/src/jzmq ] ; then
-	cd /usr/local/src
-	git clone https://github.com/zeromq/jzmq >/dev/null 2>&1
-	cd ./jzmq
-	git checkout refs/tags/v2.1.0 >/dev/null 2>&1
-	./autogen.sh >/dev/null 2>&1
-	./configure >/dev/null 2>&1
-	make >/dev/null 2>&1
-	make install >/dev/null 2>&1
-else
-	echo " -- already."
-fi
-
 cd /tmp
 echo " - download. : ${STORM_TAR_FILE}"
-curl -L -O https://dl.dropboxusercontent.com/s/tqdpoif32gufapo/${STORM_TAR_FILE} >/dev/null 2>&1
+curl -L -O https://archive.apache.org/dist/incubator/storm/apache-storm-${STORM_VERSION}-incubating/${STORM_TAR_FILE} >/dev/null 2>&1
 
 echo " - instal. : ${STORM_INSTALL_DIR}"
 tar zxf ${STORM_TAR_FILE} -C ${STORM_INSTALL_DIR}
-ln -s ${STORM_INSTALL_DIR}/storm-${STORM_VERSION} ${STORM_INSTALL_DIR}/storm
+ln -s ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating ${STORM_INSTALL_DIR}/storm
 
 echo " - setting."
 cp /vagrant/files/storm.yaml ${STORM_INSTALL_DIR}/storm/conf/
 mkdir -p /data/storm
+mkdir -p /opt/storm/logs
 
 echo " - chown."
-chown -R ${STORM_USER}:${STORM_GROUP} ${STORM_INSTALL_DIR}/storm-${STORM_VERSION}
+chown -R ${STORM_USER}:${STORM_GROUP} ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating
 chown -R ${STORM_USER}:${STORM_GROUP} /data/storm
+chown -R ${STORM_USER}:${STORM_GROUP} /opt/storm/logs
 
 echo " - service. : ${STORM_SERVICE}"
 S_STORM_INSTALL_DIR=`echo ${STORM_INSTALL_DIR} | sed -e "s/\//\\\\\\\\\//g"`
@@ -165,8 +134,6 @@ chkconfig storm-ui off
 chkconfig storm-logviewer off
 
 # cleaning
-rm -rf /tmp/zeromq-2.1.7.tar.gz
-rm -rf /tmp/jzmq2.tar.gz
 rm -rf /tmp/${STORM_TAR_FILE}
 
 exit 0

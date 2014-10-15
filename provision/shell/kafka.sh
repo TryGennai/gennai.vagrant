@@ -2,8 +2,8 @@
 
 echo "in kafka."
 
-SCALA_VERSION=2.8.0
-KAFKA_VERSION=0.8.0
+SCALA_VERSION=2.10
+KAFKA_VERSION=0.8.1.1
 KAFKA_INSTALL_DIR=/opt
 KAFKA_USER=vagrant
 KAFKA_GROUP=vagrant
@@ -52,7 +52,7 @@ if [ ! -z "${service}" -a "${service}" = "on" ] ; then
 	KAFKA_SERVICE=on
 fi
 
-KAFKA_TAR_FILE=kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tar.gz
+KAFKA_TAR_FILE=kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz
 
 # install check
 if [ -d "${KAFKA_INSTALL_DIR}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}" ] ; then
