@@ -292,6 +292,99 @@ sample=yes
 サンプルはホームディレクトリにsampleディレクトリを作成し、いくつかのqueryを配置します。また、gennaiユーザを事前に作成しますので、VM起動後は即下記コマンドを実行する事が可能です。
 
 ```
-$ gungnir -u gennai -p gennai
+$ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 ```
 
+ここから、スキーマの設定、トポロジの入力と投入、テストデータの投入、と見てゆきます。
+
+### スキーマの設定
+
+ホーム以下sample内にある下記".q"ファイルを参考にgenn.aiに待ち受けさせるスキーマ(RequestPacketとResponsePacket)を作成します。
+
+```
+sample/PacketCapture/tuple/*
+```
+
+### トポロジの設定と投入
+
+ホーム以下sample内にある下記".q"ファイルを参考にトポロジをgungnirから入力します。
+
+```
+sample/PacketCapture/topology.q 
+```
+
+次に、同gungnirからクエリを入力します。
+
+```
+SET topology.metrics.enabled = true
+;
+SET topology.metrics.interval.secs = 60
+;
+SET default.parallelism = 32
+;
+FROM (
+  RequestPacket JOIN ResponsePacket
+  ON RequestPacket.request_pheader.Destination_Port = ResponsePacket.response_pheader.Source_Port
+  AND RequestPacket.request_pheader.Source_Port = ResponsePacket.response_pheader.Destination_Port
+  AND RequestPacket.request_pheader.Destination_Ip = ResponsePacket.response_pheader.Source_Ip
+  AND RequestPacket.request_pheader.Source_Ip = ResponsePacket.response_pheader.Destination_Ip
+  TO
+    RequestPacket.request_properties AS request_properties,
+    RequestPacket._time AS request_time,
+    ResponsePacket.response_properties AS response_properties,
+    ResponsePacket._time AS response_time
+  EXPIRE 10sec
+) AS packet USING kafka_spout() parallelism 8
+EACH
+  request_properties.Host AS host,
+  request_properties.Request_URI AS uri,
+  response_properties.Status AS status,
+  request_time,
+  response_time
+INTO s1
+;
+FROM s1
+SNAPSHOT EVERY 1min *, count() AS cnt
+EACH *, sum(cnt) AS sum, ifnull(record, 'cnt_all') AS record parallelism 1
+EMIT record, sum, request_time, response_time USING mongo_persist('front', 'count', ['record']) parallelism 1
+```
+
+この後、(トポロジへの変換＋Stormでの登録と起動)を行います。
+
+```
+gungnir> SUBMIT TOPOLOGY;
+OK
+gungnir> DESC TOPOLOGY; 
+{"id":"544a6b270cf28a00f105fb7c","status":"RUNNING","owner":"gennai","createTime":"2014-10-24T15:07:19.429Z","summary":{"name":"gungnir_544a6b270cf28a00f105fb7c","status":"ACTIVE","uptimeSecs":5,"numWorkers":1,"numExecutors":43,"numTasks":43}}
+gungnir> DESC USER;
+{"id":"544a65950cf28a00f105fb79","name":"gennai","createTime":"2014-10-24T14:43:33.313Z"}
+gungnir> 
+```
+
+最後に、データをデバッグ投入(POST)して稼働を確認します。
+
+```
+>gungnier
+POST RequestPacket {"request_pheader":{"ID":20,"Source_Ip":"172.20.4.64","Destination_Ip":"160.37.39.43","Source_Port":80,"Destination_Port":1920},"request_properties":{"Host":"host.004.jp","Request_URI":"/path/002 HTTP/1.1"}};
+POST ResponsePacket {"response_pheader":{"ID":21,"Source_Ip":"160.37.39.43","Destination_Ip":"172.20.4.64","Source_Port":1920,"Destination_Port":80},"response_properties":{"Status":"HTTP/1.1 304 Not Modified"}};
+gungnir> 
+```
+
+ここでは、Mongoまでの出力をしているだけなので、以下で確認がで行きます。
+
+```
+[vagrant@localhost ~]$ mongo
+MongoDB shell version: 2.6.5
+connecting to: test
+> use front;
+switched to db front
+> show collections;
+count
+service
+system.indexes
+> db.count.find();
+{ "_id" : ObjectId("544a6f88400a9b9508bac95c"), "record" : "cnt_all_time", "sum" : NumberLong(2), "request_time" : ISODate("2014-10-24T15:25:58.407Z"), "response_time" : ISODate("2014-10-24T15:25:59.432Z") }
+> ls -la
+2014-10-25T00:28:05.604+0900 ReferenceError: la is not defined
+> 
+```
