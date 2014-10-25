@@ -384,7 +384,5 @@ service
 system.indexes
 > db.count.find();
 { "_id" : ObjectId("544a6f88400a9b9508bac95c"), "record" : "cnt_all_time", "sum" : NumberLong(2), "request_time" : ISODate("2014-10-24T15:25:58.407Z"), "response_time" : ISODate("2014-10-24T15:25:59.432Z") }
-> ls -la
-2014-10-25T00:28:05.604+0900 ReferenceError: la is not defined
 > 
 ```
