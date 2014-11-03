@@ -50,7 +50,7 @@ if [ ! -z "${service}" -a "${service}" = "on" ] ; then
 fi
 
 # install check
-if [ -d "${ZK_INSALL_DIR}/zookeeper-${ZK_VERSION}" ] ; then
+if [ -d "${ZK_INSTALL_DIR}/zookeeper-${ZK_VERSION}" ] ; then
 	echo " - already."
 	exit 0
 fi
