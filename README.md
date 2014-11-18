@@ -18,10 +18,10 @@
 
 |#|Application|Version|Install Directory|
 |:--:|:--|:--|:--|
-|1|JDK|1.6.0_45|/usr/java/jdk1.6.0_45|
+|1|JDK|1.7.0_71|/usr/java/jdk1.7.0_71|
 |2|ZooKeeper|3.4.5|/opt/zookeeper-3.4.5|
-|3|Kafka|0.8.0|/opt/kafka_2.8.0-0.8.0|
-|4|storm|0.9.0.1|/opt/storm-0.9.0.1|
+|3|Kafka|0.8.1.1|/opt/kafka_2.10-0.8.1.1|
+|4|storm|0.9.2|/opt/apache-storm-0.9.2-incubating|
 |5|GungnirServer|0.0.1|/opt/gungnir-server-0.0.1|
 |6|GungnirClient|0.0.1|/opt/gungnir-client-0.0.1|
 
@@ -123,8 +123,8 @@ $ gungnir -u root -p gennai
 |zookeeper.group|-|vagrant|
 |zookeeper.service|on/off|off|
 |kafka.install|true/false|true|
-|kafka.version|-|0.8.0|
-|kafka.scala|-|2.8.0|
+|kafka.version|-|0.8.1.1|
+|kafka.scala|-|2.10|
 |kafka.user|-|vagrant|
 |kafka.group|-|vagrant|
 |kafka.service|on/off|off|
@@ -132,7 +132,7 @@ $ gungnir -u root -p gennai
 |mongodb.service|on/off|off|
 |storm.install|true/false|true|
 |storm.dir|-|/opt|
-|storm.version|-|0.9.0.1|
+|storm.version|-|0.9.2-incubating|
 |storm.user|-|vagrant|
 |storm.group|-|vagrant|
 |storm.service|on/off|off|

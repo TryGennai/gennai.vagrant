@@ -1,12 +1,12 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright 2013-2014 Recruit Technologies Co., Ltd. and contributors
+# (see CONTRIBUTORS.md)
 #
-# http:# www.apache.org/licenses/LICENSE-2.0
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.  A copy of the
+# License is distributed with this work in the LICENSE.md file.  You may
+# also obtain a copy of the License from
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,23 +15,36 @@
 # limitations under the License.
 
 ### Gungnir server
-# gungnir.server.port: 9190
+# gungnir.server.port: 7100
+# gungnir.server.pid.file: gungnir-server1.pid
 
-### Rest server
-# gungnir.rest.server.port: 9191
+### Tuple store server
+# tuple.store.server.port: 7200
+# tuple.store.server.pid.file: tuple-store-server1.pid
 # tracking.cookie.maxage: 864000000
 # persistent.deser.queue.size: 1024
 # persistent.deser.parallelism: 32
+# persistent.deserializer: org.gennai.gungnir.tuple.persistent.JsonPersistentDeserializer
 # persistent.emitter.queue.size: 1024
 # persistent.emitter.parallelism: 32
 # persistent.emit.tuples.max: 8
 # persistent.emit.tuples.max.size: 1024
+# persistent.emitter: org.gennai.gungnir.tuple.persistent.KafkaPersistentEmitter
+
+### Cluster
+# cluster.mode: "distributed"
+# cluster.zookeeper.servers:
+#   - "localhost:2181"
+# cluster.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
+# cluster.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
+# cluster.zookeeper.retry.times: ${storm.zookeeper.retry.times}
+# cluster.zookeeper.retry.interval: ${storm.zookeeper.retry.interval}
 
 ### Admin server
 # gungnir.admin.server.port: 9192
 # gungnir.admin.server.backlog: 100
 
-### Cluster
+### Storm cluster
 # storm.cluster.mode: "distributed"
 # storm.nimbus.host: "localhost"
 
@@ -79,6 +92,13 @@
 # emit.operator.emit.tuples.max: 8
 
 ### Processor
+# kafka.spout.fetch.size: 1048576
+# kafka.spout.fetch.interval: 1000
+# kafka.spout.offset.behind.max: 9223372036854775807
+# kafka.spout.state.update.interval: 2000
+# kafka.spout.topic.replication.factor: 1
+# kafka.spout.read.brokers.retry.times: 5
+# kafka.spout.read.brokers.retry.interval: 1000
 # mongo.fetch.servers:
 #   - "localhost:27017"
 # kafka.emit.brokers:
