@@ -18,6 +18,11 @@ RETVAL=0
 prog="kafka"
 lockfile=/var/lock/subsys/$prog
 
+if [[ $EUID -ne 0 ]] ; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
 conf_check() {
     [ -x __KAFKA_INSTALL_DIR__/kafka/bin/zookeeper-server-start.sh ] || exit 5
     [ -x __KAFKA_INSTALL_DIR__/kafka/bin/zookeeper-server-stop.sh ] || exit 5
@@ -25,47 +30,44 @@ conf_check() {
 }
 
 start() {
-	conf_check
-	# Start daemons.
-	echo -n $"Starting kafka-zookeeper: "
-	[ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-	sudo -u __KAFKA_USER__ -i __KAFKA_INSTALL_DIR__/kafka/bin/kafkaZooServer start __KAFKA_INSTALL_DIR__/kafka/config/zookeeper.properties 2>/dev/null 1>&2 &
-        #&& success || failure $"$prog start"
-        sleep 3
-        PS=`ps ax | grep -i 'QuorumPeerMain' | grep -v grep | awk '{print $1}'`
-        if [ ! -z "$PS" ]; then
-            success
-            RETVAL=0
-        else
-            failure $"$prog start"
-            RETVAL=1
-        fi
-	[ $RETVAL -eq 0 ] && touch $lockfile
-        echo
-	return $RETVAL
+    conf_check
+    echo -n $"Starting kafka-zookeeper: "
+    [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
+    sudo -u __KAFKA_USER__ __KAFKA_INSTALL_DIR__/kafka/bin/kafkaZooServer start __KAFKA_INSTALL_DIR__/kafka/config/zookeeper.properties 2>/dev/null 1>&2 &
+    sleep 3
+    PS=`ps ax | grep -i 'QuorumPeerMain' | grep -v grep | awk '{print $1}'`
+    if [ ! -z "$PS" ]; then
+        success
+        RETVAL=0
+    else
+        failure $"$prog start"
+        RETVAL=1
+    fi
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    echo
+    return $RETVAL
 }
 
 stop() {
-	conf_check
-        # Stop daemons.
-	echo -n $"Shutting down kafka-zookeeper: "
-	sudo -u __KAFKA_USER__ -i __KAFKA_INSTALL_DIR__/kafka/bin/kafkaZooServer stop  2>/dev/null 1>&2 && success || failure $"$prog stop"
-	RETVAL=$?
-	echo
-	return $RETVAL
+    conf_check
+    echo -n $"Shutting down kafka-zookeeper: "
+    sudo -u __KAFKA_USER__ __KAFKA_INSTALL_DIR__/kafka/bin/kafkaZooServer stop  2>/dev/null 1>&2 && success || failure $"$prog stop"
+    RETVAL=$?
+    echo
+    return $RETVAL
 }
 
 # See how we were called.
 case "$1" in
   start)
-	start
-	;;
+    start
+    ;;
   stop)
-	stop
-	;;
+    stop
+    ;;
   *)
-	echo $"Usage: $0 {start|stop}"
-	exit 2
+    echo $"Usage: $0 {start|stop}"
+    exit 2
 esac
 
 exit $?

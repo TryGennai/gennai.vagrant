@@ -7,24 +7,26 @@
 # chkconfig: 345 20 80
 # description: Starts and stops gungnir-server
 . /etc/init.d/functions
-serverBin=__GUNGNIR_INSTALL_DIR__/gungnir-server/bin/server.sh
+gungnirHome=__GUNGNIR_INSTALL_DIR__/gungnir-server
+serverBin=./bin/gungnir-server.sh
 desc="GungnirServer daemon"
 outFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.out
 serverUser=__GUNGNIR_USER__
 pidFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.pid
- 
-if ! [ -f $serverBin ]; then
-  echo "GungnirServer binary not found."
-  exit 5
-fi
- 
-if [ -f /etc/sysconfig/gungnir-server ]; then
-  . /etc/sysconfig/gungnir-server
+
+if [[ $EUID -ne 0 ]] ; then
+    echo "This script must be run as root" 1>&2
+    exit 1
 fi
  
 start() {
+  if [ -f ${pidFile} ] ; then
+    echo "$desc already running as process $pid"
+    exit 0
+  fi
   echo -n "Starting $desc : "
-  sudo -u $serverUser -i $serverBin start >>$outFile 2>&1 && success || failure $"$desc start"
+  cd $gungnirHome
+  sudo -u $serverUser $serverBin start >>$outFile 2>&1 && success || failure $"$desc start"
   echo
   sleep 3
   RETVAL=$?
@@ -34,9 +36,12 @@ start() {
  
 stop() {
   echo -n "Shutting down $desc : "
-  sudo -u $serverUser -i $serverBin stop >>$outFile 2>&1 && success || failure $"$desc stop"
+  cd $gungnirHome
+  sudo -u $serverUser $serverBin stop >>$outFile 2>&1 && success || failure $"$desc stop"
+  RETVAL=$?
   echo
-  [ -e $pidFile ] && rm $pidFile
+
+  return $RETVAL
 }
  
 restart() {
@@ -49,10 +54,10 @@ status() {
     
   if [ -z $pid ]; then
     echo "GungnirServer is NOT running."
-		RETVAL=1
+    RETVAL=1
   else
     echo "GungnirServer is running (pid is $pid)."
-		RETVAL=0
+    RETVAL=0
   fi
  
 }

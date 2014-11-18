@@ -20,6 +20,11 @@ prog="zookeeper"
 lockfile=/var/lock/subsys/$prog
 pidfile=/var/local/zookeeper/zookeeper_server.pid
 
+if [[ $EUID -ne 0 ]] ; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
 status -p $pidfile >/dev/null 2>&1
 running=$?
 
@@ -29,42 +34,45 @@ conf_check() {
 }
 
 start() {
-	conf_check
-	# Start daemons.
-	echo -n $"Starting zookeeper: "
-	[ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-	sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh start 2>/dev/null 1>&2 && success || failure $"$prog start"
-	RETVAL=$?
-  sleep 3
-	[ $RETVAL -eq 0 ] && touch $lockfile
-        echo
-	return $RETVAL
+    pid=$(pgrep -f QuorumPeerMain)
+    if [ ! -z "$pid" ] ; then
+        echo "already running as process $pid"
+        exit 0
+    fi
+    conf_check
+    # Start daemons.
+    echo -n $"Starting zookeeper: "
+    [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
+    sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh start 2>/dev/null 1>&2 && success || failure $"$prog start"
+    RETVAL=$?
+    sleep 3
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    echo
+    return $RETVAL
 }
 
 stop() {
-	conf_check
-        # Stop daemons.
-	echo -n $"Shutting down zookeeper: "
-	sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh stop 2>/dev/null 1>&2 && success || failure $"$prog stop"
-	RETVAL=$?
-	[ $RETVAL -eq 0 ] && rm -f $lockfile $pidfile
-	echo
-	return $RETVAL
+    conf_check
+    # Stop daemons.
+    echo -n $"Shutting down zookeeper: "
+    sudo -u __ZK_USER__ -i __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh stop 2>/dev/null 1>&2 && success || failure $"$prog stop"
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $lockfile $pidfile
+    echo
+    return $RETVAL
 }
 
 # See how we were called.
 case "$1" in
-  start)
-	# [ $running -eq 0 ] && exit 0
-	start
-	;;
-  stop)
-	# [ $running -eq 0 ] || exit 0
-	stop
-	;;
-  *)
-	echo $"Usage: $0 {start|stop}"
-	exit 2
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop}"
+        exit 2
 esac
 
 exit $?
