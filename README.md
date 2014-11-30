@@ -12,15 +12,15 @@ genn.ai(源内)は、ストリーム処理を簡単に利用できるように�
 [Apache Storm](https://storm.apache.org/) は、ストリームとしてデータを吸い込む部分からプログラミングが必要ですが、genn.aiでは設定後、すぐにREST(JSON)の形で受け取れるようRESTサーバの機能を提供します。
 そして、そこで受け取ったデータを(Storm上のトポロジとして)どう処理するかは簡単な独自のクエリ言語で記述することが可能です。
 
-RESTサーバで受け取るデータの形や、そこに対する処理のクエリ、などを設定するには多くのデータベースと同様、コマンドラインツール(gungnir)を準備しています。
-そして、さらにその処理を(Storm上に)有効化する、取り外す、といった必要な操作一式についても、このツールを用いることで簡単に行うことが可能です。
+RESTサーバで受け取るデータの形や、そこに対する処理を定義するクエリ、などを設定するために、多くのデータベースと同様のコマンドラインツール(gungnir)を準備しています。
+そして、さらにそれら設定を(Storm上に)有効化する、取り外す、といった必要な操作一式もこのツールを用いることで簡単に行うことが可能です。
 
 ## Documentation
 
-[ドキュメントサイト](http://pages.genn.ai/index_ja.html) にて、同コマンドラインツールの使い方や、クエリの書き方などをご確認頂くことが可能です。
+[ドキュメントサイト](http://pages.genn.ai/index_ja.html) にて、同コマンドラインツール(gungnir)の使い方や、クエリの書き方などをご確認頂くことが可能です。
 現在、リクルート社内での利用に伴い改訂がかかっているため情報が追いついていない可能性があります。
 随時更新していきますが、ずれがある場合はご容赦下さい。
-(また、同時にご連絡頂けると幸いです)
+(また、同時に[ご連絡](pages.genn.ai/disqus.html)頂けると幸いです)
 
 ## Getting started
 
@@ -36,7 +36,6 @@ RESTサーバで受け取るデータの形や、そこに対する処理のク�
 4. [サービス](#service)
 5. [VMに関して](#vm)
 6. [メモリ](#memory)
-7. [サンプル](#sample)
 
 ####<a name="application"></a>アプリケーション
 
@@ -59,7 +58,6 @@ VM起動後、各サービスを起動すれば下記コマンドを実行する
 ```
 $ gungnir -u root -p gennai
 ```
-
 
 
 ####<a name="mode"></a>モードの設定
@@ -166,7 +164,6 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |gungnir.service|on/off|off|
 
 
-
 ####<a name='vm'></a> VMの設定
 
 現時点ではVM自体のメモリは各種フォルト設定で起動されているため、
@@ -180,12 +177,12 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 ```
 
 
-
 ####<a name='memory'></a> アプリケーションのメモリ設定
 
 メモリの設定を行います。
 
 ※ 実メモリの1/4, 実メモリの1/64はJDKのデフォルト設定です。
+
 
 ##### Default設定
 
@@ -201,114 +198,240 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |8|GungnirClient|実メモリの1/4|実メモリの1/64|
 
 
-####<a name="sample"></a> genn.aiのサンプルデータ・クエリ
 
-[config.yaml](#config)にて下記の記述をするとサンプルをVMに配置し、実行する事ができます。
+##<a name="sample"></a> Getting started
 
-```
-[common]
-sample=yes
-```
-
-サンプルはホームディレクトリにsampleディレクトリを作成し、いくつかのqueryを配置します。
+サンプルはホームディレクトリにsampleディレクトリに格納されています。
 また、genn.aiはユーザ管理機能を提供していますが、これは事前に作成されています。
-このため、VM起動後は即下記コマンドを実行する事が可能です。
+このため、VM起動後は即、(genn.aiのコマンドラインツールである)gungnirコマンドを実行する事が可能です。
 
 ```
 $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 ```
 
-ここから、スキーマの設定、トポロジの入力と投入、テストデータの投入、と見てゆきます。
+ここから、通常必要となる作業(スキーマの設定、トポロジの入力と投入、テストデータの投入)を順に見てゆきます。
 
-##### スキーマの設定
+### スキーマの設定
 
-ホーム以下sample内にある下記".q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(RequestPacketとResponsePacket)を作成します。
-これが、genn.aiが受け取るストリームデータのJSON書式となります。
-
-```
-sample/PacketCapture/tuple/*
-```
-
-##### トポロジの設定と投入
-
-ホーム以下sample内にある下記".q"ファイルを参考に、受け取ったストリームデータに対しての処理をgungnirから入力します。
-これがStormに対してトポロジとして登録されます。
+ホーム以下sample/simple内にある"tuple.q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(simple)を作成します。
+この定義が、genn.aiが受け取るストリームデータのJSON書式となる、すなわち(gennn.aiが準備する)RESTサーバがこの情報を利用します。
 
 ```
-sample/PacketCapture/topology.q
+[vagrant@localhost simple]$ cat tuple.q
+CREATE TUPLE simple (
+    Id INT,
+    Content STRING
+);
+[vagrant@localhost simple]$
 ```
 
-次に、同gungnirからクエリを入力します。
+### トポロジの設定と投入
+
+次に、同sample/simple内にある"query.q"ファイルを参考に、受け取ったストリームデータに対しての処理をgungnirから入力します。
+ここに上げた例の処理内容は「ContentカラムのデータがAから始まる文字列の場合のみMongoDBのtestデータベース中のsimple_outputコレクションに全カラムを出力せよ」というクエリです。(おおよそお分かりかと思います)
 
 ```
-SET topology.metrics.enabled = true
-;
-SET topology.metrics.interval.secs = 60
-;
-SET default.parallelism = 32
-;
-FROM (
-  RequestPacket JOIN ResponsePacket
-  ON RequestPacket.request_pheader.Destination_Port = ResponsePacket.response_pheader.Source_Port
-  AND RequestPacket.request_pheader.Source_Port = ResponsePacket.response_pheader.Destination_Port
-  AND RequestPacket.request_pheader.Destination_Ip = ResponsePacket.response_pheader.Source_Ip
-  AND RequestPacket.request_pheader.Source_Ip = ResponsePacket.response_pheader.Destination_Ip
-  TO
-    RequestPacket.request_properties AS request_properties,
-    RequestPacket._time AS request_time,
-    ResponsePacket.response_properties AS response_properties,
-    ResponsePacket._time AS response_time
-  EXPIRE 10sec
-) AS packet USING kafka_spout() parallelism 8
-EACH
-  request_properties.Host AS host,
-  request_properties.Request_URI AS uri,
-  response_properties.Status AS status,
-  request_time,
-  response_time
-INTO s1
-;
-FROM s1
-SNAPSHOT EVERY 1min *, count() AS cnt
-EACH *, sum(cnt) AS sum, ifnull(record, 'cnt_all') AS record parallelism 1
-EMIT record, sum, request_time, response_time USING mongo_persist('front', 'count', ['record']) parallelism 1
-;
+[vagrant@localhost simple]$ cat query.q
+FROM simple
+USING kafka_spout2()
+FILTER Content REGEXP '^A[A-Z]*$'
+EMIT * USING mongo_persist('test', 'simple_output');
+[vagrant@localhost simple]$
 ```
 
-この後、(トポロジへの変換＋Stormでの登録と起動)を行います。
+では、このクエリをStormに対してトポロジとして登録しましょう。
+このときトポロジの名前として*simple_t*という名前にしています。
 
 ```
-gungnir> SUBMIT TOPOLOGY;
+gungnir> submit topology simple_t;
 OK
-gungnir> DESC TOPOLOGY;
-{"id":"544a6b270cf28a00f105fb7c","status":"RUNNING","owner":"gennai","createTime":"2014-10-24T15:07:19.429Z","summary":{"name":"gungnir_544a6b270cf28a00f105fb7c","status":"ACTIVE","uptimeSecs":5,"numWorkers":1,"numExecutors":43,"numTasks":43}}
+Starting ... Done
+{"id":"547b01de0cf218509e5b6e0d","name":"simple_t","status":"RUNNING","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z","summary":{"name":"gungnir_547b01de0cf218509e5b6e0d","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
 gungnir>
 ```
 
-最後に、データをデバッグ投入(POST)して稼働を確認してみましょう。
+Done以降に返却されているJSONは、トポロジ登録時の情報であり、例えは、"id"はトポロジにふられた固有のid、また、"status"は現在のトポロジの状態(ここではRUNNINGなのでもう起動し、処理するデータを待ち受けている状態)であることgは分かります。
+
+なお、このトポロジの状態については、descコマンドでも調べることができます。
 
 ```
-gungnier> POST RequestPacket {"request_pheader":{"ID":20,"Source_Ip":"172.20.4.64","Destination_Ip":"160.37.39.43","Source_Port":80,"Destination_Port":1920},"request_properties":{"Host":"host.004.jp","Request_URI":"/path/002 HTTP/1.1"}};
-gungnier> POST ResponsePacket {"response_pheader":{"ID":21,"Source_Ip":"160.37.39.43","Destination_Ip":"172.20.4.64","Source_Port":1920,"Destination_Port":80},"response_properties":{"Status":"HTTP/1.1 304 Not Modified"}};
+gungnir> desc topology simple_t;
+{"id":"547b01de0cf218509e5b6e0d","name":"simple_t","status":"STOPPED","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z"}
 gungnir>
 ```
 
-ここでは、Mongoまでの出力をしているだけなので、以下で確認がで行きます。
+### 動作確認
+
+では、動作を確認するため、早速データをデバッグ投入(POST)してみましょう。
+以下では2つのデータを投入しています。
+
+```
+gungnir> POST simple {"Id":4,"Content":"ABCDEF"};
+POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+OK
+gungnir> POST simple {"Id":4,"Content":"BCDEFA"};
+POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+OK
+gungnir>
+```
+
+クエリに従い、結果は最初のデータ1つだけがMongoDBに登録されているはず。
+以下のとおり、そのように正しく登録されているかどうかを確認てみましょう。
 
 ```
 [vagrant@localhost ~]$ mongo
 MongoDB shell version: 2.6.5
 connecting to: test
-> use front;
-switched to db front
-> show collections;
-count
-service
-system.indexes
-> db.count.find();
-{ "_id" : ObjectId("544a6f88400a9b9508bac95c"), "record" : "cnt_all_time", "sum" : NumberLong(2), "request_time" : ISODate("2014-10-24T15:25:58.407Z"), "response_time" : ISODate("2014-10-24T15:25:59.432Z") }
+> db.simple_output.find();
+{ "_id" : ObjectId("547b02300cf23dc96705ef62"), "Id" : 4, "Content" : "ABCDEF" }
+> exit
+```
+
+では次に、curlコマンドを用いて外部からhttpにてデータ登録を行ってみましょう。
+このとき投げ込む先のURLは、先のPOSTコマンド実行時に表示されているものを用います。
+
+```
+[vagrant@localhost ~]$ curl -v -H "Content-Type: application/json" -X POST -d '{Id:6,Content:"AZYXWV"}' http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+* About to connect() to localhost port 7200 (#0)
+*   Trying ::1... connected
+* Connected to localhost (::1) port 7200 (#0)
+> POST /gungnir/v0.1/546f4f480cf2cde01845629f/simple/json HTTP/1.1
+> User-Agent: curl/7.19.7 (x86_64-redhat-linux-gnu) libcurl/7.19.7 NSS/3.13.6.0 zlib/1.2.3 libidn/1.18 libssh2/1.4.2
+> Host: localhost:7200
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 23
+>
+< HTTP/1.1 204 No Content
+< Content-Length: 0
+< Date: Sun, 30 Nov 2014 12:27:54 GMT
+<
+* Connection #0 to host localhost left intact
+* Closing connection #0
+[vagrant@localhost ~]$
+```
+
+RESTサーバからの戻りステータスが204となっており、ここからgenn.aiに正常に届いたことが分かります。
+
+### 動作確認(補足)
+
+ではさらに、genn.aiに付属しているデータ投入ツールを使ってみましょう。
+ツールは、bin/postという名前で格納されています。
+このツールは標準入力からデータを受け取ることもできますが、ここではファイルから読み上げる-fオプションを使います。
+
+なお、送信するファイルの中身は以下となっています。
+
+```
+[vagrant@localhost simple]$ cat data.json
+{"Id":0, "Content":"ABCDEF"}
+{"Id":1, "Content":"BCDEFA"}
+{"Id":2, "Content":"CDEFAB"}
+[vagrant@localhost simple]$
+```
+
+また、送信時には-aオプションにgenn.aiにおけるユーザ名を指定しますが、これは以下gungnir内でdescコマンドを用いることで確認が可能です。
+
+```
+gungnir> desc user;
+{"id":"546f4f480cf2cde01845629f","name":"gennai","createTime":"2014-11-21T14:42:16.333Z"}
+gungnir>
+```
+
+では、送信してみましょう。
+
+```
+[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -f data.json -t simple -v
+POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+HTTP/1.1 204 No Content
+Content-Length: 0
+[vagrant@localhost simple]$
+```
+
+そして、このツールは-nというオプションを持っており、そこに指定した回数分、ファイルの内容を繰り返し送信させることができます。
+(つまりここではdata.jsonに3行のデータが入っているため300件送信されます)
+
+```
+[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
+POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Sun, 30 Nov 2014 12:04:22 GMT
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Sun, 30 Nov 2014 12:04:22 GMT
+HTTP/1.1 204 No Content
+Content-Length: 0
+--省略(合計300回レスポンスである204を受け取る)--
+[vagrant@localhost simple]$
+```
+
+では、ここで更に別のトポロジを追加してみましょう。
+同様にContentカラムのデータがBから始まっているものを、別のMongoDBコレクションに格納するものを作ります。
+
+```
+FROM simple
+USING kafka_spout2()
+FILTER Content REGEXP '^B[A-Z]*$'
+EMIT * USING mongo_persist('test', 'simple_output_B');
+```
+
+そして、同様に登録、postコマンドにてサンプルのデータファイルを100回投げ込みます。
+
+```
+gungnir> submit topology simple_t_B;
+OK
+Starting ... Done
+{"id":"547b07b80cf218509e5b6e0e","name":"simple_t_B","status":"RUNNING","owner":"gennai","createTime":"2014-11-30T12:04:08.960Z","summary":{"name":"gungnir_547b07b80cf218509e5b6e0e","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
+gungnir>
+```
+
+これにより、RESTサーバが受け取データ(先のtuple設定のとおりsimpleという名前がついている)に対し、2つのトポロジが登録されたことになります。
+言うなれば、これまではsimpleにはsimple_tトポロジのみが紐づいていましたが、このsubmit以後は(simpleに)simple_t_Bというトポロジも紐づいた、2つのトポロジが紐づいた状態となっています。
+故に、simpleにデータを受けると、同じものが2つのトポロジに流れ込み、それぞれの処理がなされることになります。
+
+この動作を確認するため、また300個のデータを投入しましょう。
+
+```
+[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
+POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Sun, 30 Nov 2014 12:04:22 GMT
+HTTP/1.1 204 No Content
+Content-Length: 0
+Date: Sun, 30 Nov 2014 12:04:22 GMT
+HTTP/1.1 204 No Content
+Content-Length: 0
+--省略--
+[vagrant@localhost simple]$
+```
+
+最後にMongoDBを確認します。
+MongoDBのコレクションsimple_outputにはContentカラムのデータにおいて先頭文字がAのデータが、simple_output_Bには同様に先頭文字がBのデータが格納されることが分かります。
+
+```
+[vagrant@localhost ~]$ mongo
+MongoDB shell version: 2.6.5
+connecting to: test
+> db.simple_output.find();
+{ "_id" : ObjectId("547b07580cf23dc96705ef73"), "Id" : 0, "Content" : "ABCDEF" }
+{ "_id" : ObjectId("547b07580cf23dc96705ef73"), "Id" : 0, "Content" : "ABCDEF" }
+{ "_id" : ObjectId("547b07580cf23dc96705ef73"), "Id" : 0, "Content" : "ABCDEF" }
+--省略--
+Type "it" for more
+> db.simple_output_B.find();
+{ "_id" : ObjectId("547b07c60cf245af63550606"), "Id" : 1, "Content" : "BCDEFA" }
+{ "_id" : ObjectId("547b07c60cf245af63550607"), "Id" : 1, "Content" : "BCDEFA" }
+{ "_id" : ObjectId("547b07c60cf245af63550608"), "Id" : 1, "Content" : "BCDEFA" }
+--省略--
+Type "it" for more
 >
 ```
+
+これまでvagrantに格納されているサンプルを用いて、genn.aiのほんの一機能について確認してゆく方法をご紹介しました。
+より複雑な、より高度なクエリについては、こちらのページを参考にして下さい。
+
+
 
 ## Getting help
 
