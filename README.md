@@ -1,26 +1,32 @@
+![画像](http://pages.genn.ai/img/gennai.png "Image")
+
 ## Overview
 
 genn.ai(源内)は、ストリーム処理を簡単に利用できるようにするフレームワークです。
-Hiveが、Hadoopを使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/) を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、必要に応じてスケールしてゆける仕組みです。
+[Hive](https://hive.apache.org/)が、[Hadoop](http://hadoop.apache.org/)を使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/) を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、必要に応じてスケールしてゆける仕組みです。
 
-溜めたデータを処理するバッチ型でのデータ処理とは異なり、現在流れているデータを今まさに手に汲み取るようにして確認、理解、分析ができる仕組みを目指しています。
+溜めたデータを処理するバッチ型でのデータ処理とは異なり、現在流れているデータを今まさに手に汲み取るようにして確認、理解、分析、他のシステムとの連携、が行える仕組みとなることを目指しています。
 
 ## Structure
 
-[Apache Storm](https://storm.apache.org/) は、ストリームとしてデータを吸い込む部分からプログラミングが必要ですが、genn.aiはREST(JSON)の形で受け取れる仕組みを提供しています。
+[Apache Storm](https://storm.apache.org/) は、ストリームとしてデータを吸い込む部分からプログラミングが必要ですが、genn.aiでは設定後、すぐにREST(JSON)の形で受け取れるようRESTサーバの機能を提供します。
+そして、そこで受け取ったデータを(Storm上のトポロジとして)どう処理するかは簡単な独自のクエリ言語で記述することが可能です。
 
-そのときどんな形のデータを受け取るか、また、受け取ったデータを(Storm上のトポロジとして)どう処理するかは簡単な独自のクエリ言語で記述します。
-このために、多くのデータベースと同様、コマンドラインツール(gungnir)を準備しています。
-そして、さらにその処理を(Storm上に)有効化する、取り外す、といった必要な操作一式についても、このツールを用いることで簡単に行えます。
+RESTサーバで受け取るデータの形や、そこに対する処理のクエリ、などを設定するには多くのデータベースと同様、コマンドラインツール(gungnir)を準備しています。
+そして、さらにその処理を(Storm上に)有効化する、取り外す、といった必要な操作一式についても、このツールを用いることで簡単に行うことが可能です。
 
 ## Documentation
 
-[ドキュメントサイト](http://pages.genn.ai/) にて、同コマンドラインツールの使い方や、クエリの書き方などをご確認頂くことが可能です。
+[ドキュメントサイト](http://pages.genn.ai/index_ja.html) にて、同コマンドラインツールの使い方や、クエリの書き方などをご確認頂くことが可能です。
 現在、リクルート社内での利用に伴い改訂がかかっているため情報が追いついていない可能性があります。
 随時更新していきますが、ずれがある場合はご容赦下さい。
 (また、同時にご連絡頂けると幸いです)
 
 ## Getting started
+
+ここでは、genn.aiをお試し頂くために
+[公開しているvagrant環境](https://github.com/siniida/gennai.vagrant)
+を利用する方法をご説明します。
 
 ### 目次
 
@@ -34,7 +40,7 @@ Hiveが、Hadoopを使ったデータ処理をより手軽にしているよう�
 
 ####<a name="application"></a>アプリケーション
 
-インストールされるアプリケーションは下記の通りです。
+このvagrantにてVMにインストールされるアプリケーションは下記の通りです。
 
 |#|Application|Version|Install Directory|
 |:--:|:--|:--|:--|
@@ -45,7 +51,7 @@ Hiveが、Hadoopを使ったデータ処理をより手軽にしているよう�
 |5|GungnirServer|0.0.1|/opt/gungnir-server-0.0.1|
 |6|GungnirClient|0.0.1|/opt/gungnir-client-0.0.1|
 
-JDK, ZooKeeper, GungnirClientにはそれぞれPATHを通しています。
+このうち、JDK, ZooKeeper, GungnirClientにはそれぞれPATHを通しています。
 
 VM起動後、各サービスを起動すれば下記コマンドを実行する事ができます。
 各サービスの起動方法に関しては[サービス](#service)を参照してください。
@@ -56,27 +62,23 @@ $ gungnir -u root -p gennai
 
 
 
-####<a name="mode"></a>モード(mode)
+####<a name="mode"></a>モードの設定
 
-下記3つのモードを設定する事ができます。モードによってインストールされるアプリケーションが異なります。
+下記3つのモードを設定する事ができます。
+モードの変更は[config.yaml](#config)を編集することで行います。
+モードによって利用されるアプリケーションが異なります。
 
 * [minimum](#minimummode)
 * [local](#localmode)
-* [distributed](#distributedmode)
-
-デフォルトでは"distributed"モードで起動されます。モードの変更は[config.yaml](#config)を編集することで行います。
+* [distributed](#distributedmode)　/* デフォルト */
 
 ※ 現状では`vagrant up`後にmodeを変更しないでください。
+※ Storm UI、Storm Logviewerはデフォルトでは起動しません。必要に応じて起動して下さい。
+
 
 #####<a name="minimummode"></a>minimum mode
 
 極簡易な動作確認等に用いるモードです。最低限の機能のみインストール・設定されます。
-インストールされるアプリケーションは下記の通りです。
-
-|#|Application/Server|備考|
-|:--:|:--|:--|
-|1|Kafka|-|
-|2|GungnirServer|InMemoryMetaStore|
 
 `vagrant up`後、各種サービスを起動し、genn.aiを使用する事が可能です。
 
@@ -86,44 +88,46 @@ $ gungnir -u root -p gennai
 
 #####<a name="localmode"></a>local mode
 
-簡易な動作確認等に用いるモードです。StormをインストールせずGungnirServerをローカルモードで利用します。
+簡易な動作確認等に用いるモードです。
+Stormを起動せずGungnirServerをローカルモードで利用します。
 その為、分散処理は確認できませんが、genn.aiについて一通りの機能を試す事ができます。
-
-インストールされるアプリケーションは下記の通りです。
-
-|#|Application/Service|備考|
-|:--:|:--|:--|
-|1|ZooKeeper|-|
-|2|Kafka|-|
-|3|MongoDB|-|
-|4|GungnirServer|MongoDbMetaStore|
 
 `vagrant up`後、各種サービスを起動して使用する事が可能です。
 
-※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもめた情報は保持されます。
+※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもメタ情報は保持されます。
 
 #####<a name="distributedmode"></a>distributed mode
 
 本番環境と同等の機能を確認する事ができるモードです。
-ただしCPU・割当メモリをデフォルト設定値より増強しておくのが望ましいです。([参照](#vm))
-
-インストールされるアプリケーションは下記の通りです。
-
-|#|Application/Service|備考|
-|:--:|:--|:--|
-|1|ZooKeeper|-|
-|2|Kafka|-|
-|3|MongoDB|-|
-|4|Storm nimbus|-|
-|5|Storm supervisor|-|
-|6|Storm UI|-|
-|7|Storm LogViewer|-|
-|8|GungnirServer|MongoDbMetaStore|
+このモードを使う場合、CPU・割当メモリをデフォルト設定値を増強しておくのが望ましいです。([参照](#vm))
 
 `vagrant up`後、各種サービスを起動して使用する事が可能です。
 
 ※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもめた情報は保持されます。
-※ Storm UIはデフォルトでは起動しません。必要に応じて起動して下さい。
+
+####<a name='service'></a> サービス
+
+各モードで利用されるアプリケーションは以下となり、全てサービス化しています。
+
+|#|Service|[minumum](#minimummode)|[local](#localmode)|[distributed](#distributedmode)|起動/停止|主なログ|備考|
+|:--:|:--|:--|:--:|:--:|:--|:--|:--|
+|1|ZooKeeper|-|○|○|sudo service zookeeper [start｜stop]|-|※1|
+|2|Kafka|○|○|○|sudo service kafka [start｜stop]|/opt/kafka/logs/server.log|-|
+|3|MongoDB|-|○|○|sudo service mongod [start｜stop]|/var/log/mongodb/mongod.log|※2|
+|4|Storm nimbus|-|-|○|sudo service storm-nimbus [start｜stop]|/opt/storm/logs/nimbus.log|※3|
+|5|Storm supervisor|-|-|○|sudo service storm-supervisor [start｜stop]|/opt/storm/logs/supervisor.log|※3|
+|6|Storm UI|-|-|-|sudo service storm-ui [start｜stop]|-|※3,※4|
+|7|Storm LogViewer|-|-|-|sudo service storm-logviewer [start｜stop]|-|※3,※5,※6|
+|8|GungnirServer|○|○|○|sudo service gungnir-server [start｜stop]|/opt/gungnir-server/logs/gungnir.log|-|
+
+
+※1: Kafkaに同梱されているZooKeeperを利用します。
+※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。
+※3: distributedモードの場合のみインストールされます。
+※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。
+※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
+※6: Storm UIは、同vagrantの場合は[http://192.168.30.10:8080/](http://192.168.30.10:8080/)に上がります。
+
 
 
 ####<a name="config"></a>config.yaml
@@ -132,7 +136,7 @@ $ gungnir -u root -p gennai
 
 |Propertyless|Value|default Value|
 |:--|:--|:--|:--|
-|common.mode|[minimum](#minimummode)/[local](#localmod)/[distributed](#distributedmode)|distributed|
+|common.mode|[minimum](#minimummode)｜[local](#localmod)｜[distributed](#distributedmode)|distributed|
 |common.hostname|[STRING]/off|off|
 |common.sample|yes/no|no|
 |zookeeper.install|true/false|true|
@@ -163,34 +167,12 @@ $ gungnir -u root -p gennai
 
 
 
-####<a name='service'></a> サービス
+####<a name='vm'></a> VMの設定
 
-下記はサービス化しています。
+現時点ではVM自体のメモリは各種フォルト設定で起動されているため、
+重い処理を実行するとメモリが足りなくなる恐れがあります。
 
-|#|Service|[minumum](#minimummode)|[local](#localmode)|[distributed](#distributedmode)|起動/停止|備考|
-|:--:|:--|:--|:--:|:--:|:--|
-|1|ZooKeeper|-|○|○|sudo service zookeeper [start｜stop]|※1|
-|2|Kafka|○|○|○|sudo service kafka [start｜stop]|-|
-|3|MongoDB|-|○|○|sudo service mongod [start｜stop]|※2|
-|4|Storm nimbus|-|-|○|sudo service storm-nimbus [start｜stop]|※3|
-|5|Storm supervisor|-|-|○|sudo service storm-supervisor [start｜stop]|※3|
-|6|Storm UI|-|-|-|sudo service storm-ui [start｜stop]|※3,※4|
-|7|Storm LogViewer|-|-|-|sudo service storm-logviewer [start｜stop]|※3,※5|
-|8|GungnirServer|○|○|○|sudo service gungnir-server [start｜stop]|-|
-
-※1: Kafkaに同梱されているZooKeeperを利用します。
-※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。
-※3: distributedモードの場合のみインストールされます。
-※4: `sudo service storm-ui start`で起動してください。  config.yamlでservice=trueとしてもUIは起動対象外です。
-※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
-
-
-####<a name='vm'></a> VMに関して
-
-現時点ではメモリは各種フォルト設定で起動されています。
-よって重い処理を実行するとメモリが足りなくなる恐れがあります。
-
-Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホストマシンの性能によって調整してください。
+必要に応じてVagrantfileを編集し、VMのメモリ容量・CPU数を起動するホストマシンの性能によって調整してください。
 
 ```
   virtualbox.memory=2048
@@ -199,7 +181,7 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 
 
 
-####<a name='memory'></a> メモリ設定
+####<a name='memory'></a> アプリケーションのメモリ設定
 
 メモリの設定を行います。
 
@@ -219,7 +201,7 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 |8|GungnirClient|実メモリの1/4|実メモリの1/64|
 
 
-####<a name="sample"></a> サンプル
+####<a name="sample"></a> genn.aiのサンプルデータ・クエリ
 
 [config.yaml](#config)にて下記の記述をするとサンプルをVMに配置し、実行する事ができます。
 
@@ -228,7 +210,9 @@ Vagrantfileを編集し、VMのメモリ容量・CPU数を起動するホスト�
 sample=yes
 ```
 
-サンプルはホームディレクトリにsampleディレクトリを作成し、いくつかのqueryを配置します。また、gennaiユーザを事前に作成しますので、VM起動後は即下記コマンドを実行する事が可能です。
+サンプルはホームディレクトリにsampleディレクトリを作成し、いくつかのqueryを配置します。
+また、genn.aiはユーザ管理機能を提供していますが、これは事前に作成されています。
+このため、VM起動後は即下記コマンドを実行する事が可能です。
 
 ```
 $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
@@ -238,7 +222,8 @@ $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 
 ##### スキーマの設定
 
-ホーム以下sample内にある下記".q"ファイルを参考にgenn.aiに待ち受けさせるスキーマ(RequestPacketとResponsePacket)を作成します。
+ホーム以下sample内にある下記".q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(RequestPacketとResponsePacket)を作成します。
+これが、genn.aiが受け取るストリームデータのJSON書式となります。
 
 ```
 sample/PacketCapture/tuple/*
@@ -246,7 +231,8 @@ sample/PacketCapture/tuple/*
 
 ##### トポロジの設定と投入
 
-ホーム以下sample内にある下記".q"ファイルを参考にトポロジをgungnirから入力します。
+ホーム以下sample内にある下記".q"ファイルを参考に、受け取ったストリームデータに対しての処理をgungnirから入力します。
+これがStormに対してトポロジとして登録されます。
 
 ```
 sample/PacketCapture/topology.q
@@ -286,6 +272,7 @@ FROM s1
 SNAPSHOT EVERY 1min *, count() AS cnt
 EACH *, sum(cnt) AS sum, ifnull(record, 'cnt_all') AS record parallelism 1
 EMIT record, sum, request_time, response_time USING mongo_persist('front', 'count', ['record']) parallelism 1
+;
 ```
 
 この後、(トポロジへの変換＋Stormでの登録と起動)を行います。
@@ -295,17 +282,14 @@ gungnir> SUBMIT TOPOLOGY;
 OK
 gungnir> DESC TOPOLOGY;
 {"id":"544a6b270cf28a00f105fb7c","status":"RUNNING","owner":"gennai","createTime":"2014-10-24T15:07:19.429Z","summary":{"name":"gungnir_544a6b270cf28a00f105fb7c","status":"ACTIVE","uptimeSecs":5,"numWorkers":1,"numExecutors":43,"numTasks":43}}
-gungnir> DESC USER;
-{"id":"544a65950cf28a00f105fb79","name":"gennai","createTime":"2014-10-24T14:43:33.313Z"}
 gungnir>
 ```
 
-最後に、データをデバッグ投入(POST)して稼働を確認します。
+最後に、データをデバッグ投入(POST)して稼働を確認してみましょう。
 
 ```
->gungnier
-POST RequestPacket {"request_pheader":{"ID":20,"Source_Ip":"172.20.4.64","Destination_Ip":"160.37.39.43","Source_Port":80,"Destination_Port":1920},"request_properties":{"Host":"host.004.jp","Request_URI":"/path/002 HTTP/1.1"}};
-POST ResponsePacket {"response_pheader":{"ID":21,"Source_Ip":"160.37.39.43","Destination_Ip":"172.20.4.64","Source_Port":1920,"Destination_Port":80},"response_properties":{"Status":"HTTP/1.1 304 Not Modified"}};
+gungnier> POST RequestPacket {"request_pheader":{"ID":20,"Source_Ip":"172.20.4.64","Destination_Ip":"160.37.39.43","Source_Port":80,"Destination_Port":1920},"request_properties":{"Host":"host.004.jp","Request_URI":"/path/002 HTTP/1.1"}};
+gungnier> POST ResponsePacket {"response_pheader":{"ID":21,"Source_Ip":"160.37.39.43","Destination_Ip":"172.20.4.64","Source_Port":1920,"Destination_Port":80},"response_properties":{"Status":"HTTP/1.1 304 Not Modified"}};
 gungnir>
 ```
 
@@ -325,7 +309,6 @@ system.indexes
 { "_id" : ObjectId("544a6f88400a9b9508bac95c"), "record" : "cnt_all_time", "sum" : NumberLong(2), "request_time" : ISODate("2014-10-24T15:25:58.407Z"), "response_time" : ISODate("2014-10-24T15:25:59.432Z") }
 >
 ```
-環境設定English
 
 ## Getting help
 
