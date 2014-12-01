@@ -1,6 +1,5 @@
 ### Common
 # common.mode: "distributed"
-common.hostname: off
 common.sample: yes
 
 ### ZooKeeper

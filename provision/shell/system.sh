@@ -6,14 +6,6 @@ echo "in system."
 getConfig common
 
 #--------------------------------------------------
-echo " - hostname."
-
-if [ ! -z "${hostname}" -a "${hostname}" != "off" ] ;  then
-	sed -i -e "s/^\(HOSTNAME=\).*/\1${hostname}/g" /etc/sysconfig/network
-	hostname ${hostname}
-fi
-
-#--------------------------------------------------
 echo " - service stop."
 
 service iptables stop

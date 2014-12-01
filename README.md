@@ -20,7 +20,7 @@ RESTサーバで受け取るデータの形や、そこに対する処理を定�
 [ドキュメントサイト](http://pages.genn.ai/index_ja.html) にて、同コマンドラインツール(gungnir)の使い方や、クエリの書き方などをご確認頂くことが可能です。
 現在、リクルート社内での利用に伴い改訂がかかっているため情報が追いついていない可能性があります。
 随時更新していきますが、ずれがある場合はご容赦下さい。
-(また、同時に[ご連絡](pages.genn.ai/disqus.html)頂けると幸いです)
+(また、同時に[ご連絡](http://pages.genn.ai/disqus.html)頂けると幸いです)
 
 ## Getting started
 
@@ -80,7 +80,7 @@ $ gungnir -u root -p gennai
 
 `vagrant up`後、各種サービスを起動し、genn.aiを使用する事が可能です。
 
-※ GungnirServerはInMemoryMetStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。
+※ GungnirServerはInMemoryMetaStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。
 ※ MongoDBはインストールされないので、EMIT句でmongo_persistを用いる事はできません。
 ※ Kafkaに同梱されているZooKeeperを利用します。
 
@@ -97,11 +97,11 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 #####<a name="distributedmode"></a>distributed mode
 
 本番環境と同等の機能を確認する事ができるモードです。
-このモードを使う場合、CPU・割当メモリをデフォルト設定値を増強しておくのが望ましいです。([参照](#vm))
+このモードを使う場合、CPU・割当メモリのデフォルト設定値を増強しておくのが望ましいです。([参照](#vm))
 
 `vagrant up`後、各種サービスを起動して使用する事が可能です。
 
-※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもめた情報は保持されます。
+※ GungnirServerはMongoDbMetaStoreを利用します。従って、GungnirServerを再起動してもメタ情報は保持されます。
 
 ####<a name='service'></a> サービス
 
@@ -124,7 +124,7 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 ※3: distributedモードの場合のみインストールされます。
 ※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。
 ※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
-※6: Storm UIは、同vagrantの場合は[http://192.168.30.10:8080/](http://192.168.30.10:8080/)に上がります。
+※6: Storm UIは、同vagrantの場合は[http://internal-vagrant.genn.ai:8080/](http://internal-vagrant.genn.ai:8080/)に上がります。
 
 
 
@@ -135,7 +135,6 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |Propertyless|Value|default Value|
 |:--|:--|:--|:--|
 |common.mode|[minimum](#minimummode)｜[local](#localmod)｜[distributed](#distributedmode)|distributed|
-|common.hostname|[STRING]/off|off|
 |common.sample|yes/no|no|
 |zookeeper.install|true/false|true|
 |zookeeper.dir|-|/opt|
@@ -166,7 +165,7 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 
 ####<a name='vm'></a> VMの設定
 
-現時点ではVM自体のメモリは各種フォルト設定で起動されているため、
+現時点ではVM自体のメモリは各種デフォルト設定で起動されているため、
 重い処理を実行するとメモリが足りなくなる恐れがあります。
 
 必要に応じてVagrantfileを編集し、VMのメモリ容量・CPU数を起動するホストマシンの性能によって調整してください。
@@ -217,12 +216,12 @@ $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 この定義が、genn.aiが受け取るストリームデータのJSON書式となる、すなわち(gennn.aiが準備する)RESTサーバがこの情報を利用します。
 
 ```
-[vagrant@localhost simple]$ cat tuple.q
+[vagrant@internal-vagrant simple]$ cat tuple.q
 CREATE TUPLE simple (
     Id INT,
     Content STRING
 );
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
 ### トポロジの設定と投入
@@ -231,31 +230,31 @@ CREATE TUPLE simple (
 ここに上げた例の処理内容は「ContentカラムのデータがAから始まる文字列の場合のみMongoDBのtestデータベース中のsimple_outputコレクションに全カラムを出力せよ」というクエリです。(おおよそお分かりかと思います)
 
 ```
-[vagrant@localhost simple]$ cat query.q
+[vagrant@internal-vagrant simple]$ cat query.q
 FROM simple
-USING kafka_spout2()
+USING kafka_spout()
 FILTER Content REGEXP '^A[A-Z]*$'
 EMIT * USING mongo_persist('test', 'simple_output');
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
 では、このクエリをStormに対してトポロジとして登録しましょう。
-このときトポロジの名前として*simple_t*という名前にしています。
+このときトポロジの名前として **simple_t** という名前にしています。
 
 ```
-gungnir> submit topology simple_t;
+gungnir> SUBMIT TOPOLOGY simple_t;
 OK
 Starting ... Done
 {"id":"547b01de0cf218509e5b6e0d","name":"simple_t","status":"RUNNING","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z","summary":{"name":"gungnir_547b01de0cf218509e5b6e0d","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
 gungnir>
 ```
 
-Done以降に返却されているJSONは、トポロジ登録時の情報であり、例えは、"id"はトポロジにふられた固有のid、また、"status"は現在のトポロジの状態(ここではRUNNINGなのでもう起動し、処理するデータを待ち受けている状態)であることgは分かります。
+Done以降に返却されているJSONは、トポロジ登録時の情報であり、例えは、"id"はトポロジにふられた固有のid、また、"status"は現在のトポロジの状態(ここではRUNNINGなのでもう起動し、処理するデータを待ち受けている状態)であることが分かります。
 
-なお、このトポロジの状態については、descコマンドでも調べることができます。
+なお、このトポロジの状態については、DESCコマンドでも調べることができます。
 
 ```
-gungnir> desc topology simple_t;
+gungnir> DESC TOPOLOGY simple_t;
 {"id":"547b01de0cf218509e5b6e0d","name":"simple_t","status":"STOPPED","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z"}
 gungnir>
 ```
@@ -279,7 +278,7 @@ gungnir>
 以下のとおり、そのように正しく登録されているかどうかを確認てみましょう。
 
 ```
-[vagrant@localhost ~]$ mongo
+[vagrant@internal-vagrant ~]$ mongo
 MongoDB shell version: 2.6.5
 connecting to: test
 > db.simple_output.find();
@@ -291,7 +290,7 @@ connecting to: test
 このとき投げ込む先のURLは、先のPOSTコマンド実行時に表示されているものを用います。
 
 ```
-[vagrant@localhost ~]$ curl -v -H "Content-Type: application/json" -X POST -d '{Id:6,Content:"AZYXWV"}' http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+[vagrant@internal-vagrant ~]$ curl -v -H "Content-Type: application/json" -X POST -d '{Id:6,Content:"AZYXWV"}' http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
 * About to connect() to localhost port 7200 (#0)
 *   Trying ::1... connected
 * Connected to localhost (::1) port 7200 (#0)
@@ -308,7 +307,7 @@ connecting to: test
 <
 * Connection #0 to host localhost left intact
 * Closing connection #0
-[vagrant@localhost ~]$
+[vagrant@internal-vagrant ~]$
 ```
 
 RESTサーバからの戻りステータスが204となっており、ここからgenn.aiに正常に届いたことが分かります。
@@ -322,17 +321,17 @@ RESTサーバからの戻りステータスが204となっており、ここか�
 なお、送信するファイルの中身は以下となっています。
 
 ```
-[vagrant@localhost simple]$ cat data.json
+[vagrant@internal-vagrant simple]$ cat data.json
 {"Id":0, "Content":"ABCDEF"}
 {"Id":1, "Content":"BCDEFA"}
 {"Id":2, "Content":"CDEFAB"}
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
-また、送信時には-aオプションにgenn.aiにおけるユーザ名を指定しますが、これは以下gungnir内でdescコマンドを用いることで確認が可能です。
+また、送信時には-aオプションにgenn.aiにおけるユーザIDを指定しますが、これは以下gungnir内でdescコマンドを用いることで確認が可能です。
 
 ```
-gungnir> desc user;
+gungnir> DESC USER;
 {"id":"546f4f480cf2cde01845629f","name":"gennai","createTime":"2014-11-21T14:42:16.333Z"}
 gungnir>
 ```
@@ -340,18 +339,18 @@ gungnir>
 では、送信してみましょう。
 
 ```
-[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -f data.json -t simple -v
+[vagrant@internal-vagrant simple]$ post -a 546f4f480cf2cde01845629f -f data.json -t simple -v
 POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
 HTTP/1.1 204 No Content
 Content-Length: 0
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
 そして、このツールは-nというオプションを持っており、そこに指定した回数分、ファイルの内容を繰り返し送信させることができます。
 (つまりここではdata.jsonに3行のデータが入っているため300件送信されます)
 
 ```
-[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
+[vagrant@internal-vagrant simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
 POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
 HTTP/1.1 204 No Content
 Content-Length: 0
@@ -362,7 +361,7 @@ Date: Sun, 30 Nov 2014 12:04:22 GMT
 HTTP/1.1 204 No Content
 Content-Length: 0
 --省略(合計300回レスポンスである204を受け取る)--
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
 では、ここで更に別のトポロジを追加してみましょう。
@@ -370,7 +369,7 @@ Content-Length: 0
 
 ```
 FROM simple
-USING kafka_spout2()
+USING kafka_spout()
 FILTER Content REGEXP '^B[A-Z]*$'
 EMIT * USING mongo_persist('test', 'simple_output_B');
 ```
@@ -378,7 +377,7 @@ EMIT * USING mongo_persist('test', 'simple_output_B');
 そして、同様に登録、postコマンドにてサンプルのデータファイルを100回投げ込みます。
 
 ```
-gungnir> submit topology simple_t_B;
+gungnir> SUBMIT TOPOLOGY simple_t_B;
 OK
 Starting ... Done
 {"id":"547b07b80cf218509e5b6e0e","name":"simple_t_B","status":"RUNNING","owner":"gennai","createTime":"2014-11-30T12:04:08.960Z","summary":{"name":"gungnir_547b07b80cf218509e5b6e0e","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
@@ -392,7 +391,7 @@ gungnir>
 この動作を確認するため、また300個のデータを投入しましょう。
 
 ```
-[vagrant@localhost simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
+[vagrant@internal-vagrant simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
 POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
 HTTP/1.1 204 No Content
 Content-Length: 0
@@ -403,14 +402,14 @@ Date: Sun, 30 Nov 2014 12:04:22 GMT
 HTTP/1.1 204 No Content
 Content-Length: 0
 --省略--
-[vagrant@localhost simple]$
+[vagrant@internal-vagrant simple]$
 ```
 
 最後にMongoDBを確認します。
 MongoDBのコレクションsimple_outputにはContentカラムのデータにおいて先頭文字がAのデータが、simple_output_Bには同様に先頭文字がBのデータが格納されることが分かります。
 
 ```
-[vagrant@localhost ~]$ mongo
+[vagrant@internal-vagrant ~]$ mongo
 MongoDB shell version: 2.6.5
 connecting to: test
 > db.simple_output.find();
