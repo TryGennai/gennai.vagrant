@@ -1,18 +1,18 @@
 #!/bin/bash
 #
-# /etc/init.d/gungnir-server
+# /etc/init.d/tuple-store-server
 #
-# Startup script for gungnir-server
+# Startup script for tuple-store-server
 #
-# chkconfig: 345 20 80
-# description: Starts and stops gungnir-server
+# chkconfig: 345 19 81
+# description: Starts and stops tuple-store-server
 . /etc/init.d/functions
 gungnirHome=__GUNGNIR_INSTALL_DIR__/gungnir-server
-serverBin=./bin/gungnir-server.sh
-desc="GungnirServer"
-outFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.out
+serverBin=./bin/tuple-store-server.sh
+desc="TupleStoreServer"
+outFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/tuple-store-server.out
 serverUser=__GUNGNIR_USER__
-pidFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/gungnir-server.pid
+pidFile=__GUNGNIR_INSTALL_DIR__/gungnir-server/tuple-store-server.pid
 
 if [[ $EUID -ne 0 ]] ; then
     echo "This script must be run as root" 1>&2

@@ -17,6 +17,8 @@
 ### Gungnir server
 # gungnir.server.port: 7100
 # gungnir.server.pid.file: gungnir-server1.pid
+# session.timeout.secs: 3600
+# command.processor.cache.size: 1024
 
 ### Tuple store server
 # tuple.store.server.port: 7200

@@ -2,8 +2,8 @@
 
 echo "in gungnir."
 
-GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20141118.tar.gz
-GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20141118.tar.gz
+GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20141203.tar.gz
+GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20141203.tar.gz
 GUNGNIR_VERSION=0.0.1
 GUNGNIR_INSTALL_DIR=/opt
 GUNGNIR_USER=vagrant
@@ -93,8 +93,13 @@ sed \
 	-e "s/__GUNGNIR_INSTALL_DIR__/${S_GUNGNIR_INSTALL_DIR}/g" \
 	-e "s/__GUNGNIR_USER__/${GUNGNIR_USER}/g" \
 	/vagrant/files/gungnir-server.initd > /etc/rc.d/init.d/gungnir-server
-chmod +x /etc/rc.d/init.d/gungnir-server
+sed \
+	-e "s/__GUNGNIR_INSTALL_DIR__/${S_GUNGNIR_INSTALL_DIR}/g" \
+	-e "s/__GUNGNIR_USER__/${GUNGNIR_USER}/g" \
+	/vagrant/files/tuple-store-server.initd > /etc/rc.d/init.d/tuple-store-server
+chmod +x /etc/rc.d/init.d/gungnir-server /etc/rc.d/init.d/tuple-store-server
 chkconfig --add gungnir-server
+chkconfig --add tuple-store-server
 if [ "${GUNGNIR_SERVICE}" = "on" ] ; then
 	chkconfig gungnir-server on
 	service gungnir-server start

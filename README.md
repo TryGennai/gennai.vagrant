@@ -117,6 +117,7 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |6|Storm UI|-|-|-|sudo service storm-ui [start｜stop]|-|※3,※4|
 |7|Storm LogViewer|-|-|-|sudo service storm-logviewer [start｜stop]|-|※3,※5,※6|
 |8|GungnirServer|○|○|○|sudo service gungnir-server [start｜stop]|/opt/gungnir-server/logs/gungnir.log|-|
+|9|TupleStoreServer|-|-|-|sudo service tuple-store-server [start｜stop]|/opt/gungnir-server/logs/tuple-store-server.log|※3,※7,※8|
 
 
 ※1: Kafkaに同梱されているZooKeeperを利用します。
@@ -125,6 +126,8 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 ※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。
 ※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
 ※6: Storm UIは、同vagrantの場合は[http://internal-vagrant.genn.ai:8080/](http://internal-vagrant.genn.ai:8080/)に上がります。
+※7: TupleStoreServerは、distributedモードの場合のみRESTサーバ機能をGungnirServerとは別プロセスで起動することが可能となります。
+※8: 初期状態ではGungnirServerと同プロセスで起動される為、別プロセスで起動するには設定ファイルを変更する必要があります
 
 
 
@@ -194,7 +197,8 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |5|Storm worker|768M|実メモリの1/64|
 |6|Storm UI|768M|実メモリの1/64|
 |7|GungnirServer|実メモリの1/4|実メモリの1/64|
-|8|GungnirClient|実メモリの1/4|実メモリの1/64|
+|8|GungnirClient|1024M|実メモリの1/64|
+|9|TupleStoreServer|1024M|実メモリの1/64|
 
 
 
