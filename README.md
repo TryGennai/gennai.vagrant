@@ -3,7 +3,7 @@
 ## Overview
 
 genn.ai(源内)は、ストリーム処理を簡単に利用できるようにするフレームワークです。
-[Hive](https://hive.apache.org/)が、[Hadoop](http://hadoop.apache.org/)を使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/) を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、必要に応じてスケールしてゆける仕組みです。
+[Hive](https://hive.apache.org/)が、[Hadoop](http://hadoop.apache.org/)を使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/) を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、本番での利用へ、さらに必要に応じてスケールしてゆける仕組みです。
 
 溜めたデータを処理するバッチ型でのデータ処理とは異なり、現在流れているデータを今まさに手に汲み取るようにして確認、理解、分析、他のシステムとの連携、が行える仕組みとなることを目指しています。
 
@@ -13,7 +13,7 @@ genn.ai(源内)は、ストリーム処理を簡単に利用できるように�
 そして、そこで受け取ったデータを(Storm上のトポロジとして)どう処理するかは簡単な独自のクエリ言語で記述することが可能です。
 
 RESTサーバで受け取るデータの形や、そこに対する処理を定義するクエリ、などを設定するために、多くのデータベースと同様のコマンドラインツール(gungnir)を準備しています。
-そして、さらにそれら設定を(Storm上に)有効化する、取り外す、といった必要な操作一式もこのツールを用いることで簡単に行うことが可能です。
+このツールを用いることで、それら設定を(Storm上に)有効化する、取り外す、といった必要な操作一式も簡単に行うことが可能です。
 
 ## Documentation
 
@@ -126,7 +126,7 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 ※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。
 ※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
 ※6: Storm UIは、同vagrantの場合は[http://internal-vagrant.genn.ai:8080/](http://internal-vagrant.genn.ai:8080/)に上がります。
-※7: TupleStoreServerは、distributedモードの場合のみRESTサーバ機能をGungnirServerとは別プロセスで起動することが可能となります。
+※7: distributedモードの場合のみ、RESTサーバ機能をGungnirServerと分離し、別プロセスTupleStoreServerとして起動することができます。
 ※8: 初期状態ではGungnirServerと同プロセスで起動される為、別プロセスで起動するには設定ファイルを変更する必要があります
 
 
@@ -210,13 +210,14 @@ genn.aiは外部からRESTにてデータを受け止め、Stormのトポロジ�
 このため、全体としては、
 
 - 受け取るデータを定義(スキーマの設定)
-- そのデータをどう処理するかを定義(トポロジの入力と投入)
+- そのデータをどう処理するかを定義(トポロジの設定と有効化)
 - テストデータの投入
 
 という流れになります。
 
 でははじめましょう。
-genn.aiはユーザ管理機能を提供していますが、これは事前に作成されています。
+ここでは、先にご紹介した[公開しているvagrant環境](https://github.com/siniida/gennai.vagrant)を用います。
+genn.aiはユーザ管理機能を提供していますが、このvagrant環境では事前に作成されています。
 このため、VM起動後は即、(genn.aiのコマンドラインツールである)gungnirコマンドを実行する事が可能です。
 
 ```
@@ -227,9 +228,9 @@ $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 
 ### スキーマの設定
 
-そのためのサンプルはホームディレクトリにsampleディレクトリに格納されています。
-この内にある"tuple.q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(simple)を作成します。
-この定義が、genn.aiが受け取るストリームデータのJSON書式となる、すなわち(gennn.aiが準備する)RESTサーバがこの情報を利用します。
+サンプルは一式がホームのsampleディレクトリに格納されています。
+まず、この内にある"tuple.q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(simple)を作成します。
+この定義が、genn.aiが受け取るストリームデータのJSON書式となり、(gennn.aiが準備する)RESTサーバがこの情報を利用します。
 
 ```
 [vagrant@internal-vagrant simple]$ cat tuple.q
@@ -240,10 +241,11 @@ CREATE TUPLE simple (
 [vagrant@internal-vagrant simple]$
 ```
 
-### トポロジの設定と投入
+### トポロジの設定と有効化
 
 次に、同sample/simple内にある"query.q"ファイルを参考に、受け取ったストリームデータに対しての処理をgungnirから入力します。
-ここに上げた例の処理内容は「ContentカラムのデータがAから始まる文字列の場合のみMongoDBのtestデータベース中のsimple_outputコレクションに全カラムを出力せよ」というクエリです。(おおよそお分かりかと思います)
+ここに上げた例の処理内容は「simpleスキーマで受けたデータについて、ContentカラムのデータがAから始まる文字列の場合のみMongoDBのtestデータベース中のsimple_outputコレクションに全カラムを出力せよ」というクエリです。
+(おおよそ、クエリからお分かり頂けるかと思います)
 
 ```
 [vagrant@internal-vagrant simple]$ cat query.q
@@ -254,8 +256,8 @@ EMIT * USING mongo_persist('test', 'simple_output');
 [vagrant@internal-vagrant simple]$
 ```
 
-では、このクエリをStormに対してトポロジとして登録しましょう。
-このときトポロジの名前として **simple_t** という名前にしています。
+では、このクエリをStormに対してトポロジとして有効化(SUBMIT)しましょう。
+このときトポロジの名前として **simple_t** を与えています。
 
 ```
 gungnir> SUBMIT TOPOLOGY simple_t;
@@ -265,7 +267,7 @@ Starting ... Done
 gungnir>
 ```
 
-Done以降に返却されているJSONは、トポロジ登録時の情報であり、例えは、"id"はトポロジにふられた固有のid、また、"status"は現在のトポロジの状態(ここではRUNNINGなのでもう起動し、処理するデータを待ち受けている状態)であることが分かります。
+Done以降に返却されているJSONはトポロジ登録時(有効化時)の情報であり、例えは、"id"はトポロジにふられた固有のid、また、"status"は現在のトポロジの状態(ここではRUNNINGなのでもう起動し、処理するデータを待ち受けている状態)であることが分かります。
 
 なお、このトポロジの状態については、DESCコマンドでも調べることができます。
 
@@ -290,7 +292,7 @@ OK
 gungnir>
 ```
 
-クエリに従い、結果は最初のデータ1つだけがMongoDBに登録されているはず。
+クエリに従い、結果は最初のデータ1つだけがMongoDBに登録されているはずです。
 以下のとおり、そのように正しく登録されているかどうかを確認てみましょう。
 
 ```
@@ -330,9 +332,9 @@ RESTサーバからの戻りステータスが204となっており、ここか�
 
 ### 動作確認(負荷がけツール)
 
-ではさらに、genn.aiに付属しているデータ投入ツールを使ってみましょう。
+では次に、genn.aiに付属しているデータ投入ツールを使ってみましょう。
 ツールは、bin/postという名前で格納されています。
-このツールは標準入力からデータを受け取ることもできますが、ここではファイルから読み上げる-fオプションを使います。
+このツールは標準入力からデータを受け取ることもできますが、ここではファイルからデータを読み上げる-fオプションを使います。
 
 なお、送信するファイルの中身は以下となっています。
 
@@ -344,7 +346,8 @@ RESTサーバからの戻りステータスが204となっており、ここか�
 [vagrant@internal-vagrant simple]$
 ```
 
-また、送信時には-aオプションにgenn.aiにおけるユーザIDを指定しますが、これは以下gungnir内でdescコマンドを用いることで確認が可能です。
+また、送信時には-aオプションにgenn.aiにおけるユーザIDを指定する必要があります。
+これは以下gungnir内でdescコマンドを用いることで確認が可能です。
 
 ```
 gungnir> DESC USER;
@@ -353,6 +356,7 @@ gungnir>
 ```
 
 では、送信してみましょう。
+-tオプションに、投げ込むスキーマ名を指定します。
 
 ```
 [vagrant@internal-vagrant simple]$ post -a 546f4f480cf2cde01845629f -f data.json -t simple -v
@@ -362,7 +366,7 @@ Content-Length: 0
 [vagrant@internal-vagrant simple]$
 ```
 
-そして、このツールは-nというオプションを持っており、そこに指定した回数分、ファイルの内容を繰り返し送信させることができます。
+そして、このツールは-nというオプションを持ち、そこに指定した回数分、ファイルの内容を繰り返し送信させることができます。
 (つまりここではdata.jsonに3行のデータが入っているため300件送信されます)
 
 ```
@@ -380,10 +384,10 @@ Content-Length: 0
 [vagrant@internal-vagrant simple]$
 ```
 
-### 処理を追加する
+### 別のトポロジを追加する
 
-では、ここで更に別のトポロジを追加してみましょう。
-同様にContentカラムのデータがBから始まっているものを、別のMongoDBコレクションに格納するものを作ります。
+では、ここで更に別のトポロジを追加＝処理を追加してみましょう。
+同様に「simpleスキーマで受けたデータについて、ContentカラムのデータがBから始まっているものを、別のMongoDBコレクションに格納する」処理を作ります。
 
 ```
 FROM simple
@@ -427,7 +431,7 @@ Content-Length: 0
 このように1つのデータに対して複数の処理を紐づけられる機能は、新たな処理を追加するためのテストを容易とするなど多くの利点があります。
 
 最後にMongoDBを確認します。
-MongoDBのコレクションsimple_outputにはContentカラムのデータにおいて先頭文字がAのデータが、simple_output_Bには同様に先頭文字がBのデータが格納されることが分かります。
+MongoDBのコレクションsimple_outputには、simple_tトポロジによりContentカラムのデータにおいて先頭文字がAのデータが、simple_output_Bにはsimple_t_Bにより先頭文字がBのデータが格納されたことが分かります。
 
 ```
 [vagrant@internal-vagrant ~]$ mongo
@@ -446,6 +450,21 @@ Type "it" for more
 --省略--
 Type "it" for more
 >
+```
+
+なお、simple_t_Bトポロジをsimpleスキーマに紐づく処理から外すには、STOPコマンド、その後同トポロジを削除するにはDROPコマンドを用います。
+STOPコマンドで止めた状態であれば、STARTコマンドにて処理を再開させることができます。
+
+```
+gungnir> STOP TOPOLOGY simple_t_B;
+```
+
+```
+gungnir> DROP TOPOLOGY simple_t_B;
+```
+
+```
+gungnir> START TOPOLOGY simple_t_B;
 ```
 
 これまでvagrantに格納されているサンプルを用いて、genn.aiのほんの一機能について確認してゆく方法をご紹介しました。
