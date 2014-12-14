@@ -15,6 +15,7 @@ curl -L -O https://s3-ap-northeast-1.amazonaws.com/gennai/binary/jdk-7u71-linux-
 
 echo " - install."
 rpm -ivh ./jdk-7u71-linux-x64.rpm >/dev/null 2>&1
+ln -s /usr/java/default/bin/jps /usr/bin/jps
 
 # environment
 OUTPUT=/home/${USER}/.bashrc
