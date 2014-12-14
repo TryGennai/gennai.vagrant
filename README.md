@@ -222,6 +222,10 @@ genn.aiはユーザ管理機能を提供していますが、このvagrant環境
 
 ```
 $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
+Gungnir server connecting ...
+Gungnir version 0.0.1 build at 20141203-002625
+Welcome gennai (Account ID: 548dbd9d0cf26eec29240527)
+gungnir>
 ```
 
 ここから、通常必要となる作業(先に上げたスキーマの設定、トポロジの入力と投入、テストデータの投入)を順に見てゆきます。
@@ -229,8 +233,7 @@ $ /opt/gungnir-client/bin/gungnir -u gennai -p gennai
 ### スキーマの設定
 
 サンプルは一式がホームのsampleディレクトリに格納されています。
-まず、この内にある"tuple.q"ファイルを参考に、genn.aiに待ち受けさせるスキーマ(simple)を作成します。
-この定義が、genn.aiが受け取るストリームデータのJSON書式となり、(gennn.aiが準備する)RESTサーバがこの情報を利用します。
+まず、この内にある"tuple.q"ファイルを参考に、
 
 ```
 [vagrant@internal-vagrant simple]$ cat tuple.q
@@ -241,6 +244,21 @@ CREATE TUPLE simple (
 [vagrant@internal-vagrant simple]$
 ```
 
+genn.aiに待ち受けさせるスキーマ(simple)を作成します。
+
+```
+gungnir> CREATE TUPLE simple (
+      ->     Id INT,
+      ->     Content STRING
+      -> );
+OK
+gungnir>
+```
+
+この定義が、genn.aiが受け取るストリームデータのJSON書式となり、(gennn.aiが準備する)RESTサーバがこの情報を利用します。
+
+
+
 ### トポロジの設定と有効化
 
 次に、同sample/simple内にある"query.q"ファイルを参考に、受け取ったストリームデータに対しての処理をgungnirから入力します。
@@ -248,12 +266,12 @@ CREATE TUPLE simple (
 (おおよそ、クエリからお分かり頂けるかと思います)
 
 ```
-[vagrant@internal-vagrant simple]$ cat query.q
-FROM simple
-USING kafka_spout()
-FILTER Content REGEXP '^A[A-Z]*$'
-EMIT * USING mongo_persist('test', 'simple_output');
-[vagrant@internal-vagrant simple]$
+gungnir> FROM simple
+      -> USING kafka_spout()
+      -> FILTER Content REGEXP '^A[A-Z]*$'
+      -> EMIT * USING mongo_persist('test', 'simple_output');
+OK
+gungnir>
 ```
 
 では、このクエリをStormに対してトポロジとして有効化(SUBMIT)しましょう。
