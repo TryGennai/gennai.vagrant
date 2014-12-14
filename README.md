@@ -291,7 +291,7 @@ Done以降に返却されているJSONはトポロジ登録時(有効化時)の�
 
 ```
 gungnir> DESC TOPOLOGY simple_t;
-{"id":"547b01de0cf218509e5b6e0d","name":"simple_t","status":"STOPPED","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z"}
+{"id":"548dbd9d0cf26eec29240527","name":"simple_t","status":"STOPPED","owner":"gennai","createTime":"2014-11-30T11:39:10.287Z"}
 gungnir>
 ```
 
@@ -302,10 +302,10 @@ gungnir>
 
 ```
 gungnir> POST simple {"Id":4,"Content":"ABCDEF"};
-POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+POST /gungnir/v0.1/548dbd9d0cf26eec29240527/simple/json
 OK
 gungnir> POST simple {"Id":4,"Content":"BCDEFA"};
-POST http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+POST /gungnir/v0.1/548dbd9d0cf26eec29240527/simple/json
 OK
 gungnir>
 ```
@@ -323,10 +323,17 @@ connecting to: test
 ```
 
 では次に、[curlコマンド](http://curl.haxx.se/docs/)を用いて外部からhttpにてデータ登録を行ってみましょう。
-このとき投げ込む先のURLは、先のPOSTコマンド実行時に表示されているものを用います。
+
+このとき投げ込む先のURLは、先のPOSTコマンド実行時に表示されているURLを用います。
+ホスト名はlocalhost、RESTサーバは7200番ポートで待ち受けています。
+別の接続を用いて投入します。
 
 ```
-[vagrant@internal-vagrant ~]$ curl -v -H "Content-Type: application/json" -X POST -d '{Id:6,Content:"AZYXWV"}' http://localhost:7200/gungnir/v0.1/546f4f480cf2cde01845629f/simple/json
+$ vagrant ssh
+Last login: Mon Dec 15 01:28:55 2014 from 10.0.2.2
+Welcome to your Vagrant-built virtual machine.
+[vagrant@internal-vagrant ~]$
+[vagrant@internal-vagrant ~]$ curl -v -H "Content-Type: application/json" -X POST -d '{Id:6,Content:"AZYXWV"}' http://localhost:7200/gungnir/v0.1/548dbd9d0cf26eec29240527/simple/json
 * About to connect() to localhost port 7200 (#0)
 *   Trying ::1... connected
 * Connected to localhost (::1) port 7200 (#0)
@@ -346,7 +353,6 @@ connecting to: test
 [vagrant@internal-vagrant ~]$
 ```
 
-RESTサーバからの戻りステータスが204となっており、ここからgenn.aiに正常に届いたことが分かります。
 
 ### 動作確認(負荷がけツール)
 
@@ -366,6 +372,7 @@ RESTサーバからの戻りステータスが204となっており、ここか�
 
 また、送信時には-aオプションにgenn.aiにおけるユーザIDを指定する必要があります。
 これは以下gungnir内でdescコマンドを用いることで確認が可能です。
+(もしくは、gungnirコマンド起動時のwelcomeメッセージでも表示されます)
 
 ```
 gungnir> DESC USER;
@@ -402,6 +409,19 @@ Content-Length: 0
 [vagrant@internal-vagrant simple]$
 ```
 
+MongoDBを確認すると、データが増えていることが分かります。
+
+```
+[vagrant@internal-vagrant simple]$ mongo
+MongoDB shell version: 2.6.6
+connecting to: test
+> db.simple_output.find();
+{ "_id" : ObjectId("548dc8140cf27f4e3ceff38c"), "Id" : 4, "Content" : "ABCDEF" }
+{ "_id" : ObjectId("548dc8d30cf27f4e3ceff38d"), "Id" : 6, "Content" : "AZYXWV" }
+{ "_id" : ObjectId("548dd1190cf27f4e3ceff38e"), "Id" : 0, "Content" : "ABCDEF" }
+>
+```
+
 ### 別のトポロジを追加する
 
 では、ここで更に別のトポロジを追加＝処理を追加してみましょう。
@@ -414,22 +434,35 @@ FILTER Content REGEXP '^B[A-Z]*$'
 EMIT * USING mongo_persist('test', 'simple_output_B');
 ```
 
-そして、同様に登録、postコマンドにてサンプルのデータファイルを100回投げ込みます。
+そして、同様に登録します。
+ここでは、SUBMITコマンドにあるCOMMENT機能を使い、トポロジの機能についてもメモを一緒に書き入れました。
+このメモは後からトポロジの機能について確認するための手助けとなります(DESCコマンドにて確認が可能です)。
 
 ```
-gungnir> SUBMIT TOPOLOGY simple_t_B;
+gungnir> submit topology simple_t_B comment "You can get the data with the content starting letter B.";
 OK
 Starting ... Done
-{"id":"547b07b80cf218509e5b6e0e","name":"simple_t_B","status":"RUNNING","owner":"gennai","createTime":"2014-11-30T12:04:08.960Z","summary":{"name":"gungnir_547b07b80cf218509e5b6e0e","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
+{"id":"548dd20d0cf26eec2924052a","name":"simple_t_B","status":"RUNNING","owner":"gennai","createTime":"2014-12-14T18:08:13.607Z","comment":"You can get the data with the content starting letter B.","summary":{"name":"gungnir_548dd20d0cf26eec2924052a","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
 gungnir>
 ```
 
 これにより、RESTサーバが受け取るデータ(先のtuple設定のとおりsimpleという名前がついている)1つに対し、2つのトポロジが登録されたことになります。
 
 言うなれば、これまではsimpleにはsimple_tトポロジのみが紐づいていましたが、このsubmit以後は(simpleに)simple_t_Bというトポロジも紐づいた、2つのトポロジが紐づいた状態となっています。
-故に、simpleにデータを受けると、同じものが2つのトポロジに流れ込み、それぞれの処理がなされることになります。
 
-この動作を確認するため、また300個のデータを投入しましょう。
+このことはsimpleタプルの情報を確認すること出来ます。
+(以下、戻されるJSONにあるtopologiesに、二つのトポロジが格納されています)
+
+```
+gungnir> desc tuple simple;
+{"name":"simple","fields":{"Id":{"type":"INT"},"Content":{"type":"STRING"}},
+"topologies":["548dc7e40cf26eec29240529","548dd20d0cf26eec2924052a"],"owner":"gennai","createTime":"2014-12-14T17:17:46.048Z"}
+gungnir>
+```
+
+これ以降、simpleにデータを受けると、同じデータが2つのトポロジに流れ込み、それぞれの処理がなされるはずです。
+では、実際にこの動作を確認しましょう。
+また300個のデータを投入します。
 
 ```
 [vagrant@internal-vagrant simple]$ post -a 546f4f480cf2cde01845629f -n 100 -v -f data.json -t simple
@@ -446,7 +479,7 @@ Content-Length: 0
 [vagrant@internal-vagrant simple]$
 ```
 
-このように1つのデータに対して複数の処理を紐づけられる機能は、新たな処理を追加するためのテストを容易とするなど多くの利点があります。
+このように1つのデータに対して複数の処理を紐づけられる機能は、**試験的に新たな処理を追加する**ときなどに便利です。
 
 最後にMongoDBを確認します。
 MongoDBのコレクションsimple_outputには、simple_tトポロジによりContentカラムのデータにおいて先頭文字がAのデータが、simple_output_Bにはsimple_t_Bにより先頭文字がBのデータが格納されたことが分かります。
