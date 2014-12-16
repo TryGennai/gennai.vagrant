@@ -178,6 +178,12 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
   virtualbox.cpus = 2
 ```
 
+VMはDHCPによってIPを振られています。固定IPを割り振るには下記を参考に編集してください。
+
+```
+  config.vm.network :private_network, ip: "192.168.30.10"
+```
+
 
 ####<a name='memory'></a> アプリケーションのメモリ設定
 
