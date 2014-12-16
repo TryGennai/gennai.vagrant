@@ -78,7 +78,23 @@ status() {
     echo "storm-$stormSvc is running (pid is $pid)."
     RETVAL=0
   fi
- 
+}
+
+init() {
+  if [ $stormSvc == "ui" ]; then
+     pid=$(pgrep -f backtype.storm.ui.core)
+  else
+     pid=$(pgrep -f backtype.storm.daemon.$stormSvc)
+  fi
+    
+  if [ ! -z $pid ]; then
+    echo "storm-$stormSvc is running (pid is $pid)."
+    RETVAL=1
+    return
+  fi
+  LOCALDIR=`grep storm.local.dir __STORM_INSTALL_DIR__/storm/conf/storm.yaml | awk -F: '{print $2}'`
+  rm -rf ${LOCALDIR}/supervisor ${LOCALDIR}/workers
+  RETVAL=$?
 }
  
 case "$1" in
@@ -86,6 +102,7 @@ case "$1" in
   stop)    stop;;
   restart) restart;;
   status)  status;;
+  init)    init;;
   *)       echo "Usage: $0 {start|stop|restart}"
            RETVAL=2;;
 esac

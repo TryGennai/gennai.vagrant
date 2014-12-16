@@ -62,6 +62,19 @@ stop() {
     return $RETVAL
 }
 
+init() {
+    conf_check
+    pid=$(pgrep -f QuorumPeerMain)
+    if [ ! -z "$pid" ] ; then
+        echo "running as process $pid."
+        RETVAL=1
+        return
+    fi
+    DATADIR=`grep dataDir __ZK_INSTALL_DIR__/zookeeper/conf/zoo.cfg | awk -F= '{print $2}'`
+    rm -rf ${DATADIR}/*
+    RETVAL=$?
+}
+
 # See how we were called.
 case "$1" in
     start)
@@ -69,6 +82,9 @@ case "$1" in
         ;;
     stop)
         stop
+        ;;
+    init)
+        init
         ;;
     *)
         echo $"Usage: $0 {start|stop}"
