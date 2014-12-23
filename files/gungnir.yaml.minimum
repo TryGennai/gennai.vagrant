@@ -64,6 +64,7 @@
 ### Tuple store
 # kafka.brokers:
 #   - "localhost:9092"
+# kafka.required.acks: 1
 # kafka.auto.commit.interval: 10000
 # kafka.zookeeper.servers:
 #   - "localhost:2181"
@@ -77,6 +78,7 @@
 # monitor.enabled: false
 # kafka.monitor.brokers:
 #   - "localhost:9092"
+# kafka.monitor.required.acks: 1
 # kafka.monitor.auto.commit.interval: 10000
 # kafka.monitor.zookeeper.servers:
 #   - "localhost:2181"
@@ -101,10 +103,13 @@
 # kafka.spout.topic.replication.factor: 1
 # kafka.spout.read.brokers.retry.times: 5
 # kafka.spout.read.brokers.retry.interval: 1000
+# kafka.spout.partition.operation.retry.times: 5
+# kafka.spout.partition.operation.retry.interval: 1000
 # mongo.fetch.servers:
 #   - "localhost:27017"
 # kafka.emit.brokers:
 #   - "localhost:9092"
+# kafka.emit.required.acks: 1
 # mongo.persist.servers:
 #   - "localhost:27017"
 
