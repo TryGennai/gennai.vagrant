@@ -3,30 +3,28 @@
 ## Overview
 
 genn.ai(源内)は、ストリーム処理を簡単に利用できるようにするフレームワークです。
-[Hive](https://hive.apache.org/)が、[Hadoop](http://hadoop.apache.org/)を使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/) を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、本番での利用へ、さらに必要に応じてスケールしてゆける仕組みです。
+[Hive](https://hive.apache.org/)が、[Hadoop](http://hadoop.apache.org/)を使ったデータ処理をより手軽にしているように、[Apache Storm](https://storm.apache.org/)を使ったストリーム処理を手軽に、特別なプログラミングを行うことなく試し、本番での利用へ、さらに必要に応じてスケールしてゆける仕組みです。
 
 溜めたデータを処理するバッチ型でのデータ処理とは異なり、現在流れているデータを今まさに手に汲み取るようにして確認、理解、分析、他のシステムとの連携、が行える仕組みとなることを目指しています。
 
 ## Structure
 
-[Apache Storm](https://storm.apache.org/) は、ストリームとしてデータを吸い込む部分からプログラミングが必要ですが、genn.aiでは設定後、すぐにREST(JSON)の形で受け取れるようRESTサーバの機能を提供します。
+[Apache Storm](https://storm.apache.org/)は、ストリームとしてデータを吸い込む部分からプログラミングが必要ですが、genn.aiでは設定後、すぐにREST(JSON)の形で受け取れるようRESTサーバの機能を提供します。
 そして、そこで受け取ったデータを(Storm上のトポロジとして)どう処理するかは簡単な独自のクエリ言語で記述することが可能です。
 
-RESTサーバで受け取るデータの形や、そこに対する処理を定義するクエリ、などを設定するために、多くのデータベースと同様のコマンドラインツール(gungnir)を準備しています。
+RESTサーバで受け取るデータの形や、そこに対する処理を定義するクエリなどを設定するために、多くのデータベースと同様のコマンドラインツール(gungnir)を準備しています。
 このツールを用いることで、それら設定を(Storm上に)有効化する、取り外す、といった必要な操作一式も簡単に行うことが可能です。
 
 ## Documentation
 
-[ドキュメントサイト](http://pages.genn.ai/index_ja.html) にて、同コマンドラインツール(gungnir)の使い方や、クエリの書き方などをご確認頂くことが可能です。
+[ドキュメントサイト](http://pages.genn.ai/index_ja.html)にて、同コマンドラインツール(gungnir)の使い方や、クエリの書き方などをご確認頂くことが可能です。
 現在、リクルート社内での利用に伴い改訂がかかっているため情報が追いついていない可能性があります。
 随時更新していきますが、ずれがある場合はご容赦下さい。
 (また、同時に[ご連絡](http://pages.genn.ai/disqus.html)頂けると幸いです)
 
 ## Getting started
 
-ここでは、genn.aiをお試し頂くために
-[公開しているvagrant環境](https://github.com/siniida/gennai.vagrant)
-を利用する方法をご説明します。
+ここでは、genn.aiをお試し頂くために[公開しているVagrant環境](https://github.com/siniida/gennai.vagrant)を利用する方法をご説明します。
 
 ### 目次
 
@@ -39,7 +37,7 @@ RESTサーバで受け取るデータの形や、そこに対する処理を定�
 
 ####<a name="application"></a>アプリケーション
 
-このvagrantにてVMにインストールされるアプリケーションは下記の通りです。
+このVagrantにてVMにインストールされるアプリケーションは下記の通りです。
 
 |#|Application|Version|Install Directory|
 |:--:|:--|:--|:--|
@@ -70,9 +68,8 @@ $ gungnir -u root -p gennai
 * [local](#localmode)
 * [distributed](#distributedmode)　/* デフォルト */
 
-※ 現状では`vagrant up`後にmodeを変更しないでください。
-※ Storm UI、Storm Logviewerはデフォルトでは起動しません。必要に応じて起動して下さい。
-
+※ `vagrant up`後にmodeを変更しないでください。  
+※ Storm UI、Storm LogViewerはデフォルトでは起動しません。必要に応じて起動して下さい。  
 
 #####<a name="minimummode"></a>minimum mode
 
@@ -80,9 +77,9 @@ $ gungnir -u root -p gennai
 
 `vagrant up`後、各種サービスを起動し、genn.aiを使用する事が可能です。
 
-※ GungnirServerはInMemoryMetaStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。
-※ MongoDBはインストールされないので、EMIT句でmongo_persistを用いる事はできません。
-※ Kafkaに同梱されているZooKeeperを利用します。
+※ GungnirServerはInMemoryMetaStoreで起動されます。従ってGungnirServerを停止するとメタ情報は削除されます。  
+※ MongoDBはインストールされないので、JOIN句でmongo_fetch、EMIT句でmongo_persistを用いる事はできません。  
+※ Kafkaに同梱されているZooKeeperを利用します。  
 
 #####<a name="localmode"></a>local mode
 
@@ -120,14 +117,14 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 |9|TupleStoreServer|-|-|-|sudo service tuple-store-server [start｜stop]|/opt/gungnir-server/logs/tuple-store-server.log|※3,※7,※8|
 
 
-※1: Kafkaに同梱されているZooKeeperを利用します。
-※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。
-※3: distributedモードの場合のみインストールされます。
-※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。
-※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。
-※6: Storm UIは、同vagrantの場合は[http://internal-vagrant.genn.ai:8080/](http://internal-vagrant.genn.ai:8080/)に上がります。
-※7: distributedモードの場合のみ、RESTサーバ機能をGungnirServerと分離し、別プロセスTupleStoreServerとして起動することができます。
-※8: 初期状態ではGungnirServerと同プロセスで起動される為、別プロセスで起動するには設定ファイルを変更する必要があります
+※1: Kafkaに同梱されているZooKeeperを利用します。  
+※2: GungnirServerはInMemoryMetaStoreを用いる為、MongoDBをインストールしません。  
+※3: distributedモードの場合のみインストールされます。  
+※4: `sudo service storm-ui start`で起動してください。config.yamlでservice=trueとしてもUIは起動対象外です。  
+※5: `sudo service storm-logviewer start`で起動してください。config.yamlでservice=trueとしてもLogViewerは対象外です。  
+※6: Storm UIは、同Vagrantの場合は[http://internal-vagrant.genn.ai:8080/](http://internal-vagrant.genn.ai:8080/)に上がります。  
+※7: distributedモードの場合のみ、RESTサーバ機能をGungnirServerと分離し、別プロセスTupleStoreServerとして起動することができます。  
+※8: 初期状態ではGungnirServerと同プロセスで起動される為、別プロセスで起動するには設定ファイルを変更する必要があります。  
 
 
 
@@ -168,8 +165,7 @@ Stormを起動せずGungnirServerをローカルモードで利用します。
 
 ####<a name='vm'></a> VMの設定
 
-現時点ではVM自体のメモリは各種デフォルト設定で起動されているため、
-重い処理を実行するとメモリが足りなくなる恐れがあります。
+現時点ではVM自体のメモリは各種デフォルト設定で起動されている為、重い処理を実行するとメモリが足りなくなる恐れがあります。
 
 必要に応じてVagrantfileを編集し、VMのメモリ容量・CPU数を起動するホストマシンの性能によって調整してください。
 
@@ -213,17 +209,15 @@ VMはDHCPによってIPを振られています。固定IPを割り振るには�
 ここでは、極力シンプルな例を用い、genn.aiを用いたストリーム処理の全容を見てゆきます。
 genn.aiは外部からRESTにてデータを受け止め、Stormのトポロジでそれを処理してゆきます。
 
-このため、全体としては、
+このため、全体としては下記のような流れになります。
 
 - 受け取るデータを定義(スキーマの設定)
 - そのデータをどう処理するかを定義(トポロジの設定と有効化)
 - テストデータの投入
 
-という流れになります。
-
-でははじめましょう。
-ここでは、先にご紹介した[公開しているvagrant環境](https://github.com/siniida/gennai.vagrant)を用います。
-genn.aiはユーザ管理機能を提供していますが、このvagrant環境では事前に作成されています。
+では始めましょう。
+ここでは、先にご紹介した[公開しているVagrant環境](https://github.com/siniida/gennai.vagrant)を用います。
+genn.aiはユーザ管理機能を提供していますが、このVagrant環境では事前に作成されています。
 このため、VM起動後は即、(genn.aiのコマンドラインツールである)gungnirコマンドを実行する事が可能です。
 
 ```
@@ -238,7 +232,7 @@ gungnir>
 
 ### スキーマの設定
 
-サンプルは一式がホームのsampleディレクトリに格納されています。
+サンプルは一式がホームのsample/simpleディレクトリに格納されています。
 まず、この内にある"tuple.q"ファイルを参考に、
 
 ```
@@ -377,7 +371,7 @@ Welcome to your Vagrant-built virtual machine.
 ```
 
 また、送信時には-aオプションにgenn.aiにおけるユーザIDを指定する必要があります。
-これは以下gungnir内でdescコマンドを用いることで確認が可能です。
+これは以下gungnir内でDESCコマンドを用いることで確認が可能です。
 (もしくは、gungnirコマンド起動時のwelcomeメッセージでも表示されます)
 
 ```
@@ -445,7 +439,7 @@ EMIT * USING mongo_persist('test', 'simple_output_B');
 このメモは後からトポロジの機能について確認するための手助けとなります(DESCコマンドにて確認が可能です)。
 
 ```
-gungnir> submit topology simple_t_B comment "You can get the data with the content starting letter B.";
+gungnir> SUBMIT TOPOLOGY simple_t_B COMMENT "You can get the data with the content starting letter B.";
 OK
 Starting ... Done
 {"id":"548dd20d0cf26eec2924052a","name":"simple_t_B","status":"RUNNING","owner":"gennai","createTime":"2014-12-14T18:08:13.607Z","comment":"You can get the data with the content starting letter B.","summary":{"name":"gungnir_548dd20d0cf26eec2924052a","status":"ACTIVE","uptimeSecs":2,"numWorkers":1,"numExecutors":3,"numTasks":3}}
@@ -454,13 +448,13 @@ gungnir>
 
 これにより、RESTサーバが受け取るデータ(先のtuple設定のとおりsimpleという名前がついている)1つに対し、2つのトポロジが登録されたことになります。
 
-言うなれば、これまではsimpleにはsimple_tトポロジのみが紐づいていましたが、このsubmit以後は(simpleに)simple_t_Bというトポロジも紐づいた、2つのトポロジが紐づいた状態となっています。
+言うなれば、これまではsimpleにはsimple_tトポロジのみが紐づいていましたが、このSUBMIT以後は(simpleに)simple_t_Bというトポロジも紐づいた、2つのトポロジが紐づいた状態となっています。
 
 このことはsimpleタプルの情報を確認すること出来ます。
 (以下、戻されるJSONにあるtopologiesに、二つのトポロジが格納されています)
 
 ```
-gungnir> desc tuple simple;
+gungnir> DESC TUPLE simple;
 {"name":"simple","fields":{"Id":{"type":"INT"},"Content":{"type":"STRING"}},
 "topologies":["548dc7e40cf26eec29240529","548dd20d0cf26eec2924052a"],"owner":"gennai","createTime":"2014-12-14T17:17:46.048Z"}
 gungnir>
@@ -524,7 +518,7 @@ gungnir> DROP TOPOLOGY simple_t_B;
 gungnir> START TOPOLOGY simple_t_B;
 ```
 
-これまでvagrantに格納されているサンプルを用いて、genn.aiのほんの一機能について確認してゆく方法をご紹介しました。
+これまでVagrantに格納されているサンプルを用いて、genn.aiのほんの一機能について確認してゆく方法をご紹介しました。
 より複雑な、より高度なクエリについては、こちらのページを参考にして下さい。
 
 
@@ -532,7 +526,7 @@ gungnir> START TOPOLOGY simple_t_B;
 ## Getting help
 
 現在、メーリングリスト等は準備できておりませんが、
-[ドキュメントサイト](http://pages.genn.ai/) 下段にあるDisqusか、もしくはgithub上でのやり取りにて出来る限りご質問等にはお答えするようにしています。
+[ドキュメントサイト](http://pages.genn.ai/) 下段にあるDisqusか、もしくはGitHub上でのやり取りにて出来る限りご質問等にはお答えするようにしています。
 
 ## License
 
@@ -555,7 +549,7 @@ under the License.
 
 ## Main developper
 
-* Ikumasa Mukai
+* Ikumasa Mukai ([@ikumasa](https://github.com/ikumasa))
 
 ## Project lead
 
@@ -563,10 +557,10 @@ under the License.
 
 ## Committers
 
-* Shinji Iida
+* Shinji Iida ([@siniida](https://github.com/siniida))
 * Gaute Lambertsen ([@gautela](https://github.com/gautela))
 
 ## Contributors
 
-* Masaru Makino
+* Masaru Makino ([@kotetsu33](https://github.com/kotetsu33))
 * Takahiko Ito ([@takahi-i](https://github.com/takahi-i))
