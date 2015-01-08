@@ -11,6 +11,7 @@
 3. [固定IPを設定する](#staticip)
 4. [genn.ai疑似分散モードを設定](#pseudo)
 5. [1台でgenn.ai分散モードを設定](#distributed)
+6. [1台のホストマシン上にVagrantで複数台起動して分散](#multiservers)
 
 
 
@@ -237,3 +238,153 @@ znode: /gungnir/cluster/servers にGungnirServerクラスタを構成する新�
 ### 注意点
 
 * デフォルト設定のVagrantfileでは、GungnirServer/TupleStoreServerを分散モードで稼働させるには十分なリソースではありません。CPUコア数・メモリ容量を増やして利用してください。
+
+
+##<a name='multiservers'></a> 1台のホストマシン上にVagrantで複数台起動して分散
+
+複数台起動することで、genn.aiの完全分散モードをホストマシン上で再現することができます。(ホストマシンのリソースを大量に消費しますので、十分な性能のホストマシン上にておこなってください。)
+
+ここでは1台のホストマシン上に2台のゲストマシンを起動することで、genn.aiの完全分散モードを各種設定と共に試してみます。
+
+### 構成
+
+|Vagrant|1台目|2台目|
+|:--|:-:|:-:|
+|MongoDB|○|-|
+|ZooKeeper|○|-|
+|Kafka|○|-|
+|Storm nimbus|○|-|
+|Storm supervisor|○|○|
+|GungnirServer|○|○|
+|TupleStoreServer|○|○|
+
+MongoDB, ZooKeeper, Kafkaを複数台でクラスタ構成を組むことも可能ですが、今回はgenn.aiを構成する主なStorm, GungnirServer, TupleStoreServerのみクラスタ構成を組むことを試します。
+
+### 手順
+
+1. gennai.vagrantを2ヶ所に`git clone`
+2. Vagrantfileを編集
+3. `vagrant up`
+4. 設定ファイル編集
+
+### 1. gennai.vagrantを2ヶ所に`git clone`
+
+2台のVMを使用するため、server1, server2とディレクトリ名を変えて`git clone`を実行します。
+
+```
+$ cd /tmp
+$ git clone https://github.com/siniida/gennai.vagrant server1
+$ git clone https://github.com/siniida/gennai.vagrant server2
+```
+
+### 2. Vagrantfileを編集
+
+元のファイルをそれぞれ下記のように編集しています。
+
+#### server1
+
+```
+  config.vm.hostname = "server1"
+```
+
+#### server2
+
+```
+  config.vm.hostname = "server2"
+```
+
+### 3. `vagrant up`
+
+server1, server2共に`vagrant up`で起動させます。起動させた状態ではそれぞれ個別のgenn.aiとして稼働しているので、server1は疑似分散モードに変更。server2は一度全てのサービスを停止させます。また、server1, server2共にIPを調べておきます。
+
+ここでは、server1のIPを`172.28.128.3`、server2のIPを`172.28.128.4`として以降の設定を行います。
+
+### 4. 設定ファイル編集
+
+#### server1
+
+[genn.ai疑似分散モードを設定](#pseudo)を参照にしてください。
+
+また、MongoDBのデフォルト設定ではlocalhost以外からのアクセスが不可であるため、server2からserver1のMongoDBへのアクセスが可能になるよう設定を行います。
+
+##### /etc/mongod.conf
+
+    18 # Listen to local interface only. Comment out to listen on all interfaces.
+    19 # bind_ip=127.0.0.1
+
+19行目の`bind_ip`の設定をコメントアウトします。編集後、mongodを再起動します。
+
+    $ sudo service mongod restart
+
+#### server2
+
+##### 各種サービスの停止
+
+server2で不要となるサービスを全て停止します。GungnirServerもローカルモードで稼働しているので一旦停止させます。
+
+```
+$ sudo service gungnir-server stop
+$ sudo service storm-supervisor stop
+$ sudo service storm-nimbus stop
+$ sudo service kafka stop
+$ sudo service zookeeper stop
+$ sudo service mongod stop
+```
+
+##### /opt/storm/conf/storm.yaml
+
+server1のIPで指定します。
+
+```
+  2 storm.zookeeper.servers:
+  3     - "172.28.128.3"
+  :
+  5 nimbus.host: "172.28.128.3"
+```
+
+##### /opt/gungnir-server/conf/gungnir.yaml
+
+server1のIPで指定します。
+
+```
+ 36 ### Cluster
+ 37 cluster.mode: "distributed"
+ 38 cluster.zookeeper.servers:
+ 39   - "172.28.128.3:2181"
+  :
+ 49 ### Storm cluster
+ 50 storm.cluster.mode: "distributed"
+ 51 storm.nimbus.host: "172.28.128.3"
+  :
+ 59 ### Metastore
+ 60 metastore: org.gennai.gungnir.metastore.MongoDbMetaStore
+ 61 metastore.mongodb.servers:
+ 62   - "172.28.128.3:27017"
+  :
+ 64 ### Tuple store
+ 65 kafka.brokers:
+ 66   - "172.28.128.3:9092"
+  :
+ 69 kafka.zookeeper.servers:
+ 70   - "172.28.128.3:2181"
+  :
+ 98 ### Processor
+  :
+108 mongo.fetch.servers:
+109   - "172.28.128.3:27017"
+110 kafka.emit.brokers:
+111   - "172.28.128.3:9092"
+  :
+113 mongo.persist.servers:
+114   - "172.28.128.3:27017"
+```
+
+設定を完了したら、必要なサービスのみを起動します。
+
+    $ sudo service storm-supervisor start
+    $ sudo service gungnir-server start
+    $ sudo service tuple-store-server start
+
+プロセスが正常に稼働しているのを確認してください。
+
+以降は、gungnir-client/conf/gungnir.yamlの設定が正しくされていれば、各クライアント(gungnir/post)にて複数台における完全分散モードを利用する事が可能です。
