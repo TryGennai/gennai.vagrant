@@ -24,7 +24,7 @@ RESTサーバで受け取るデータの形や、そこに対する処理を定�
 
 ## Getting started
 
-ここでは、genn.aiをお試し頂くために[公開しているVagrant環境](https://github.com/siniida/gennai.vagrant)を利用する方法をご説明します。
+ここでは、genn.aiをお試し頂くために[公開しているVagrant環境](https://github.com/trygennai/gennai.vagrant)を利用する方法をご説明します。
 
 ### 目次
 
@@ -216,7 +216,7 @@ genn.aiは外部からRESTにてデータを受け止め、Stormのトポロジ�
 - テストデータの投入
 
 では始めましょう。
-ここでは、先にご紹介した[公開しているVagrant環境](https://github.com/siniida/gennai.vagrant)を用います。
+ここでは、先にご紹介した[公開しているVagrant環境](https://github.com/trygennai/gennai.vagrant)を用います。
 genn.aiはユーザ管理機能を提供していますが、このVagrant環境では事前に作成されています。
 このため、VM起動後は即、(genn.aiのコマンドラインツールである)gungnirコマンドを実行する事が可能です。
 
