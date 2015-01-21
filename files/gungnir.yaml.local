@@ -52,25 +52,26 @@
 
 ### Topology
 # topology.workers: 1
-# topology.status.check.timeout: 120000
-# topology.status.check.interval: 5000
+# topology.status.check.times: 20
+# topology.status.check.interval: 2000
 # default.parallelism: 1
 
 ### Metastore
-metastore: org.gennai.gungnir.metastore.MongoDbMetaStore
-metastore.mongodb.servers:
-  - "localhost:27017"
+# metastore: org.gennai.gungnir.metastore.MongoDbMetaStore
+# metastore.mongodb.servers:
+#   - "localhost:27017"
 
 ### Tuple store
 # kafka.brokers:
 #   - "localhost:9092"
 # kafka.required.acks: 1
+# kafka.producer.type: "sync"
+
 # kafka.auto.commit.interval: 10000
 # kafka.zookeeper.servers:
 #   - "localhost:2181"
 # kafka.zookeeper.session.timeout: 6000
 # kafka.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
-# kafka.zookeeper.sync.timeout: 2000
 # kafka.zookeeper.retry.times: ${storm.zookeeper.retry.times}
 # kafka.zookeeper.retry.interval: ${storm.zookeeper.retry.interval}
 
@@ -85,10 +86,6 @@ metastore.mongodb.servers:
 # kafka.monitor.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
 # kafka.monitor.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
 # kafka.monitor.zookeeper.sync.timeout: 2000
-
-### Component
-# component.snapshot.queue.size: 1024
-# component.snapshot.parallelism: 32
 
 ### Operator
 # spout.operator.queue.size: 1024
@@ -118,7 +115,6 @@ metastore.mongodb.servers:
 #   - reporter: org.gennai.gungnir.metrics.CsvMetricsReporter
 #     interval.secs: 60
 #     output.dir: ${gungnir.home}/logs
-# component.metrics.interval.secs: 60
 # topology.metrics.enabled: false
 # topology.metrics.consumer: backtype.storm.metric.LoggingMetricsConsumer
 # topology.metrics.consumer.parallelism: 1
