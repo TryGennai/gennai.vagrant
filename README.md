@@ -184,5 +184,5 @@ VMはDHCPによってIPを振られています。固定IPを割り振るには�
 
 下記を参照してください。genn.aiの使い方、タプルやクエリの例を記載しています。
 
-* [Simple example](https://github.com/TryGennai/gennai.vagrant#simple-example)
+* [Simple example](https://github.com/TryGennai/gennai#simple-example)
 * [各種サンプル](https://github.com/TryGennai/gennai.sample)
