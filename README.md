@@ -18,10 +18,10 @@ Vagrantにて、[genn.ai](https://github.com/TryGennai/gennai)を容易に利用
 
 |#|Application|Version|Install Directory|
 |:--:|:--|:--|:--|
-|1|JDK|1.7.0_71|/usr/java/jdk1.7.0_71|
-|2|ZooKeeper|3.4.5|/opt/zookeeper-3.4.5|
-|3|Kafka|0.8.1.1|/opt/kafka_2.10-0.8.1.1|
-|4|storm|0.9.2|/opt/apache-storm-0.9.2-incubating|
+|1|JDK|1.7.0\_71|/usr/java/jdk1.7.0\_71|
+|2|ZooKeeper|3.4.6|/opt/zookeeper-3.4.6|
+|3|Kafka|0.8.2.1|/opt/kafka\_2.10-0.8.2.1|
+|4|storm|0.9.2|/opt/apache-storm-0.9.4|
 |5|GungnirServer|0.0.1|/opt/gungnir-server-0.0.1|
 |6|GungnirClient|0.0.1|/opt/gungnir-client-0.0.1|
 

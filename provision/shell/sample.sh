@@ -19,7 +19,7 @@ fi
 
 ### main
 
-sudo -u vagrant -i git clone https://github.com/siniida/gennai.sample sample > /dev/null 2>&1
+sudo -u vagrant -i git clone https://github.com/trygennai/gennai.sample sample > /dev/null 2>&1
 sudo -u vagrant -i gungnir -u root -p gennai -f sample/user.q > /dev/null 2>&1
 
 exit 0

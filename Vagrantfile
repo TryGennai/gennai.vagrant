@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	config.vm.box = "centos64"
 	config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box"
-	config.vm.hostname = "internal-vagrant.genn.ai"
+	config.vm.hostname = "internal-vagrant"
 	config.vm.network :private_network, type: "dhcp"
 	config.vm.provider "virtualbox" do |virtualbox|
 		virtualbox.memory = 2048

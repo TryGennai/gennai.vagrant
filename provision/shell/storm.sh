@@ -2,8 +2,8 @@
 
 echo "in storm."
 
-STORM_VERSION=0.9.2
-STORM_TAR_FILE=apache-storm-${STORM_VERSION}-incubating.tar.gz
+STORM_VERSION=0.9.4
+STORM_TAR_FILE=apache-storm-${STORM_VERSION}.tar.gz
 STORM_INSTALL_DIR=/opt
 STORM_USER=vagrant
 STORM_GROUP=vagrant
@@ -53,7 +53,7 @@ if [ ! -z "${service}" -a "${service}" = "on" ] ; then
 fi
 
 # install check.
-if [ -d ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating ] ; then
+if [ -d ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION} ] ; then
 	echo " - already."
 	exit 0
 fi
@@ -72,11 +72,11 @@ fi
 
 cd /tmp
 echo " - download. : ${STORM_TAR_FILE}"
-curl -L -O https://archive.apache.org/dist/incubator/storm/apache-storm-${STORM_VERSION}-incubating/${STORM_TAR_FILE} >/dev/null 2>&1
+curl -L -O https://archive.apache.org/dist/storm/apache-storm-${STORM_VERSION}/${STORM_TAR_FILE} >/dev/null 2>&1
 
 echo " - instal. : ${STORM_INSTALL_DIR}"
 tar zxf ${STORM_TAR_FILE} -C ${STORM_INSTALL_DIR}
-ln -s ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating ${STORM_INSTALL_DIR}/storm
+ln -s ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION} ${STORM_INSTALL_DIR}/storm
 
 echo " - setting."
 cp /vagrant/files/storm.yaml ${STORM_INSTALL_DIR}/storm/conf/
@@ -84,7 +84,7 @@ mkdir -p /data/storm
 mkdir -p /opt/storm/logs
 
 echo " - chown."
-chown -R ${STORM_USER}:${STORM_GROUP} ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}-incubating
+chown -R ${STORM_USER}:${STORM_GROUP} ${STORM_INSTALL_DIR}/apache-storm-${STORM_VERSION}
 chown -R ${STORM_USER}:${STORM_GROUP} /data/storm
 chown -R ${STORM_USER}:${STORM_GROUP} /opt/storm/logs
 

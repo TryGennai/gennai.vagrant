@@ -34,7 +34,7 @@
 # persistent.emitter: org.gennai.gungnir.tuple.persistent.KafkaPersistentEmitter
 
 ### Cluster
-# cluster.mode: "distributed"
+cluster.mode: "local"
 # cluster.zookeeper.servers:
 #   - "localhost:2181"
 # cluster.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
@@ -55,6 +55,7 @@
 # topology.status.check.times: 20
 # topology.status.check.interval: 2000
 # default.parallelism: 1
+# gungnir.local.dir: "gungnir-local"
 
 ### Metastore
 # metastore: org.gennai.gungnir.metastore.MongoDbMetaStore
@@ -91,6 +92,7 @@
 # spout.operator.queue.size: 1024
 # emit.operator.queue.size: 1024
 # emit.operator.emit.tuples.max: 8
+# tuplejoin.seek.size: 8
 
 ### Processor
 # kafka.spout.fetch.size: 1048576
@@ -104,6 +106,8 @@
 # kafka.spout.partition.operation.retry.interval: 1000
 # mongo.fetch.servers:
 #   - "localhost:27017"
+# mongo.fetch.cache.size: 1024
+# web.fetch.cache.size: 1024
 # kafka.emit.brokers:
 #   - "localhost:9092"
 # kafka.emit.required.acks: 1
@@ -115,8 +119,16 @@
 #   - reporter: org.gennai.gungnir.metrics.CsvMetricsReporter
 #     interval.secs: 60
 #     output.dir: ${gungnir.home}/logs
+#   - reporter: org.gennai.gungnir.metrics.StatsdMetricsReporter
+#     interval.secs: 60
+#     statsd.host: ${metrics.statsd.host}
+#     statsd.port: ${metrics.statsd.port}
+#     statsd.prefix: ${metrics.reporter.prefix}
 # topology.metrics.enabled: false
 # topology.metrics.consumer: backtype.storm.metric.LoggingMetricsConsumer
 # topology.metrics.consumer.parallelism: 1
 # topology.metrics.interval.secs: 60
-
+# metrics.statsd.host: "localhost"
+# metrics.statsd.port: 8125
+# metrics.consumer.prefix: "storm.metrics"
+# metrics.reporter.prefix: "tuplestore"

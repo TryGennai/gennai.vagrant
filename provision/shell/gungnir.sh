@@ -2,8 +2,8 @@
 
 echo "in gungnir."
 
-GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20150121.tar.gz
-GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20150121.tar.gz
+GUNGNIR_SERVER_FILE=gungnir-server-0.0.1-20150612.tar.gz
+GUNGNIR_CLIENT_FILE=gungnir-client-0.0.1-20150612.tar.gz
 GUNGNIR_VERSION=0.0.1
 GUNGNIR_INSTALL_DIR=/opt
 GUNGNIR_USER=vagrant
@@ -103,6 +103,12 @@ chkconfig --add tuple-store-server
 if [ "${GUNGNIR_SERVICE}" = "on" ] ; then
 	chkconfig gungnir-server on
 	service gungnir-server start
+	if [ "${MODE}" = "distributed" ] ; then
+		chkconfig tuple-store-server on
+		service tuple-store-server start
+	else
+		chkconfig tuple-store-server off
+	fi
 else
 	chkconfig gungnir-server off
 fi

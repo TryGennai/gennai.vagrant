@@ -2,7 +2,7 @@
 
 echo "in zookeeper."
 
-ZK_VERSION=3.4.5
+ZK_VERSION=3.4.6
 ZK_INSTALL_DIR=/opt
 ZK_USER=vagrant
 ZK_GROUP=vagrant
