@@ -74,8 +74,6 @@ echo " - setting."
 MODE=`getMode`
 cp /vagrant/files/gungnir.yaml.${MODE} ${GUNGNIR_INSTALL_DIR}/gungnir-server/conf/gungnir.yaml
 
-mkdir -p /var/log/gungnir
-
 OUTPUT=/home/${GUNGNIR_USER}/.bashrc
 echo "" >> ${OUTPUT}
 echo "export GUNGNIR_SERVER_HOME=${GUNGNIR_INSTALL_DIR}/gungnir-server" >> ${OUTPUT}
@@ -85,7 +83,6 @@ echo "export PATH=\${GUNGNIR_CLIENT_HOME}/bin:\${PATH}" >> ${OUTPUT}
 echo " - chown."
 chown -R ${GUNGNIR_USER}:${GUNGNIR_GROUP} ${GUNGNIR_INSTALL_DIR}/gungnir-server-${GUNGNIR_VERSION}
 chown -R ${GUNGNIR_USER}:${GUNGNIR_GROUP} ${GUNGNIR_INSTALL_DIR}/gungnir-client-${GUNGNIR_VERSION}
-chown -R ${GUNGNIR_USER}:${GUNGNIR_GROUP} /var/log/gungnir
 
 echo " - service. : ${GUNGNIR_SERVICE}"
 S_GUNGNIR_INSTALL_DIR=`echo ${GUNGNIR_INSTALL_DIR} | sed -e "s/\//\\\\\\\\\//g"`

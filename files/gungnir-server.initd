@@ -4,7 +4,7 @@
 #
 # Startup script for gungnir-server
 #
-# chkconfig: 345 20 80
+# chkconfig: 345 90 10
 # description: Starts and stops gungnir-server
 . /etc/init.d/functions
 gungnirHome=__GUNGNIR_INSTALL_DIR__/gungnir-server

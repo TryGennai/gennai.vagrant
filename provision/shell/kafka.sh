@@ -90,13 +90,11 @@ sed \
 chmod +x ${KAFKA_INSTALL_DIR}/kafka/bin/kafkaServer
 
 mkdir -p /data/kafka
-mkdir -p /var/log/kafka
 
 
 echo " - chown."
 chown -R ${KAFKA_USER}:${KAFKA_GROUP} ${KAFKA_INSTALL_DIR}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
 chown -R ${KAFKA_USER}:${KAFKA_GROUP} /data/kafka
-chown -R ${KAFKA_USER}:${KAFKA_GROUP} /var/log/kafka
 
 if [ "${ZOOKEEPER}" = "on" ] ; then
 	echo " - zookeeper. : ${ZOOKEEPER}"

@@ -4,7 +4,7 @@
 #
 # Startup script for tuple-store-server
 #
-# chkconfig: 345 19 81
+# chkconfig: 345 91 09
 # description: Starts and stops tuple-store-server
 . /etc/init.d/functions
 gungnirHome=__GUNGNIR_INSTALL_DIR__/gungnir-server

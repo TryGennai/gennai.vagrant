@@ -2,7 +2,7 @@
 #
 # zookeeper      zookeeper
 #
-# chkconfig: 345 80 20
+# chkconfig: 345 86 14
 # description: zookeeper.
 # processname: zookeeper
 # pidfile: /var/local/zookeeper/zookeeper_server.pid

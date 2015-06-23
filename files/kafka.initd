@@ -2,7 +2,7 @@
 #
 # kafka      kafka server
 #
-# chkconfig: 35 81 21
+# chkconfig: 35 87 13
 # description: kafka server.
 # processname: kafka
 # config: __KAFKA_INSTALL_DIR__/kafka/config/server.properties

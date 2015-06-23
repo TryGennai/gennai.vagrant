@@ -4,7 +4,7 @@
 #
 # Startup script for storm-logviewer
 #
-# chkconfig: 345 20 80
+# chkconfig: 345 90 10
 # description: Starts and stops storm-logviewer
 . /etc/init.d/functions
 stormBin=__STORM_INSTALL_DIR__/storm/bin/storm
