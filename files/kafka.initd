@@ -39,7 +39,7 @@ start() {
     # Start daemons.
     echo -n $"Starting kafka: "
     [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-    sudo -u __KAFKA_USER__ nohup __KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer start __KAFKA_INSTALL_DIR__/kafka/config/server.properties 2>/dev/null 1>&2 &
+    su __KAFKA_USER__ -c "nohup __KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer start __KAFKA_INSTALL_DIR__/kafka/config/server.properties 2>/dev/null 1>&2 &"
     sleep 3
     PS=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
     if [ ! -z "$PS" ]; then
@@ -58,7 +58,7 @@ stop() {
     conf_check
     # Stop daemons.
     echo -n $"Shutting down kafka: "
-    sudo -u __KAFKA_USER__ __KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer stop  2>/dev/null 1>&2 && success || failure $"$prog stop"
+    su __KAFKA_USER__ -c "__KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer stop 2>/dev/null 1>&2" && success || failure $"$prog stop"
     RETVAL=$?
     echo
     return $RETVAL
