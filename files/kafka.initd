@@ -39,7 +39,7 @@ start() {
     # Start daemons.
     echo -n $"Starting kafka: "
     [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-    su __KAFKA_USER__ -c "nohup __KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer start __KAFKA_INSTALL_DIR__/kafka/config/server.properties 2>/dev/null 1>&2 &"
+    su __KAFKA_USER__ -c "__KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer start -daemon __KAFKA_INSTALL_DIR__/kafka/config/server.properties"
     sleep 3
     PS=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
     if [ ! -z "$PS" ]; then
