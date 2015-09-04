@@ -32,9 +32,14 @@
 # persistent.emit.tuples.max: 8
 # persistent.emit.tuples.max.size: 1024
 # persistent.emitter: org.gennai.gungnir.tuple.persistent.KafkaPersistentEmitter
+# rewrite.rules:
+#   - pattern: "/"
+#     target: "/gungnir/v0.1"
+#   - pattern: "/gennai/(\\w+)"
+#     target: "/gungnir/v0.1/${ACCOUNT:root}/$1/json"
 
 ### Cluster
-# cluster.mode: "distributed"
+cluster.mode: "distributed"
 # cluster.zookeeper.servers:
 #   - "localhost:2181"
 # cluster.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
@@ -43,7 +48,7 @@
 # cluster.zookeeper.retry.interval: ${storm.zookeeper.retry.interval}
 
 ### Admin server
-# gungnir.admin.server.port: 9192
+# gungnir.admin.server.port: 7300
 # gungnir.admin.server.backlog: 100
 
 ### Storm cluster
@@ -67,7 +72,6 @@ storm.cluster.mode: "distributed"
 #   - "localhost:9092"
 # kafka.required.acks: 1
 # kafka.producer.type: "sync"
-
 # kafka.auto.commit.interval: 10000
 # kafka.zookeeper.servers:
 #   - "localhost:2181"
@@ -76,17 +80,9 @@ storm.cluster.mode: "distributed"
 # kafka.zookeeper.retry.times: ${storm.zookeeper.retry.times}
 # kafka.zookeeper.retry.interval: ${storm.zookeeper.retry.interval}
 
-### Monitor
-# monitor.enabled: false
-# kafka.monitor.brokers:
-#   - "localhost:9092"
-# kafka.monitor.required.acks: 1
-# kafka.monitor.auto.commit.interval: 10000
-# kafka.monitor.zookeeper.servers:
-#   - "localhost:2181"
-# kafka.monitor.zookeeper.session.timeout: ${storm.zookeeper.session.timeout}
-# kafka.monitor.zookeeper.connection.timeout: ${storm.zookeeper.connection.timeout}
-# kafka.monitor.zookeeper.sync.timeout: 2000
+### File registry
+# export.retry.times: 5
+# export.retry.interval: 1000
 
 ### Operator
 # spout.operator.queue.size: 1024
@@ -113,6 +109,12 @@ storm.cluster.mode: "distributed"
 # kafka.emit.required.acks: 1
 # mongo.persist.servers:
 #   - "localhost:27017"
+# log.append.queue.size: 1024
+# log.append.reconnect.delay: 30000
+
+## Debug
+# debug.log.append.queue.size: 1024
+# debug.log.append.reconnect.delay: 1024
 
 ### Metrics
 # metrics.reporters:
