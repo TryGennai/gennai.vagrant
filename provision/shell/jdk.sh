@@ -4,7 +4,7 @@ USER=vagrant
 
 echo "in jdk."
 
-if [ -d /usr/java/jdk1.7.0_71 ] ; then
+if [ -d /usr/java/jdk1.7.0_80 ] ; then
 	echo " - already."
 	exit 0
 fi

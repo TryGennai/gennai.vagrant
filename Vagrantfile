@@ -4,7 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-	config.vm.box = "chef/centos-6.6"
+	config.vm.box = "hansode/centos-6.7-x86_64"
 	config.vm.hostname = "internal-vagrant"
 	config.vm.network :private_network, type: "dhcp"
 	config.vm.provider "virtualbox" do |virtualbox|
