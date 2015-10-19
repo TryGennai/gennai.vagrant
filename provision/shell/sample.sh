@@ -2,15 +2,6 @@
 
 echo "in sample."
 
-. /vagrant/provision/shell/common.sh
-getConfig common
-
-# source config and override settings.
-if [ -z "${sample}" -o "${sample}" != "yes" ] ; then
-	echo " - not install."
-	exit 0
-fi
-
 # install check
 if [ -d "/home/vagrant/sample" ] ; then
 	echo " - already."

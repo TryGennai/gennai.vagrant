@@ -5,7 +5,7 @@
 # chkconfig: 35 87 13
 # description: kafka server.
 # processname: kafka
-# config: __KAFKA_INSTALL_DIR__/kafka/config/server.properties
+# config: /opt/kafka/config/server.properties
 #
 
 # Source function library.
@@ -24,9 +24,9 @@ if [[ $EUID -ne 0 ]] ; then
 fi
 
 conf_check() {
-    [ -x __KAFKA_INSTALL_DIR__/kafka/bin/kafka-server-start.sh ] || exit 5
-    [ -x __KAFKA_INSTALL_DIR__/kafka/bin/kafka-server-stop.sh ] || exit 5
-    [ -d __KAFKA_INSTALL_DIR__/kafka/config ] || exit 6
+    [ -x /opt/kafka/bin/kafka-server-start.sh ] || exit 5
+    [ -x /opt/kafka/bin/kafka-server-stop.sh ] || exit 5
+    [ -d /opt/kafka/config ] || exit 6
 }
 
 start() {
@@ -39,7 +39,7 @@ start() {
     # Start daemons.
     echo -n $"Starting kafka: "
     [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-    su __KAFKA_USER__ -c "__KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer start -daemon __KAFKA_INSTALL_DIR__/kafka/config/server.properties"
+    su vagrant -c "/opt/kafka/bin/kafkaServer start -daemon /opt/kafka/config/server.properties"
     sleep 3
     PS=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
     if [ ! -z "$PS" ]; then
@@ -58,7 +58,7 @@ stop() {
     conf_check
     # Stop daemons.
     echo -n $"Shutting down kafka: "
-    su __KAFKA_USER__ -c "__KAFKA_INSTALL_DIR__/kafka/bin/kafkaServer stop 2>/dev/null 1>&2" && success || failure $"$prog stop"
+    su vagrant -c "/opt/kafka/bin/kafkaServer stop 2>/dev/null 1>&2" && success || failure $"$prog stop"
     RETVAL=$?
     echo
     return $RETVAL
@@ -72,7 +72,7 @@ init() {
         RETVAL=1
         return
     fi
-    LOGDIRS=`grep log.dirs __KAFKA_INSTALL_DIR__/kafka/config/server.properties | awk -F= '{print $2}'`
+    LOGDIRS=`grep log.dirs /opt/kafka/config/server.properties | awk -F= '{print $2}'`
     rm -rf ${LOGDIRS}/*
     RETVAL=$?
 }

@@ -7,11 +7,11 @@
 # chkconfig: 345 89 11
 # description: Starts and stops storm-supervisor
 . /etc/init.d/functions
-stormBin=__STORM_INSTALL_DIR__/storm/bin/storm
+stormBin=/opt/storm/bin/storm
 stormSvc=$(echo $0 | cut -d'-' -f2)
 desc="Storm $stormSvc daemon"
-outFile=__STORM_INSTALL_DIR__/storm/storm-$stormSvc.out
-stormUser=__STORM_USER__
+outFile=/opt/storm/storm-$stormSvc.out
+stormUser=vagrant
 
 if [[ $EUID -ne 0 ]] ; then
   echo "This script must be run as root" 1>&2
@@ -92,7 +92,7 @@ init() {
     RETVAL=1
     return
   fi
-  LOCALDIR=`grep storm.local.dir __STORM_INSTALL_DIR__/storm/conf/storm.yaml | awk -F: '{print $2}'`
+  LOCALDIR=`grep storm.local.dir /opt/storm/conf/storm.yaml | awk -F: '{print $2}'`
   rm -rf ${LOCALDIR}/supervisor ${LOCALDIR}/workers
   RETVAL=$?
 }

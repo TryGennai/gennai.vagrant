@@ -2,8 +2,8 @@
 
 echo "in system."
 
-. /vagrant/provision/shell/common.sh
-getConfig common
+# . /vagrant/provision/shell/common.sh
+# getConfig common
 
 #--------------------------------------------------
 echo " - service stop."
@@ -28,8 +28,12 @@ if [ "${NOW}" != "${JST}" ] ; then
 else
 	echo " -- OK"
 fi
-#--------------------------------------------------
 
+#--------------------------------------------------
+echo " - install git."
+yum install -y git > /dev/null 2>&1
+
+#--------------------------------------------------
 # check
 check=`grep -e '^*.*nofile' /etc/security/limits.conf | wc -l`
 
@@ -43,7 +47,4 @@ echo "*    hard    nofile    32768" >> /etc/security/limits.conf
 
 sed -i -e 's/^\(\*.*\)/#\1\n\*\tsoft\tnproc\t63228\n\*\thard\tnproc\t63228/g' /etc/security/limits.d/90-nproc.conf
 
-#--------------------------------------------------
-echo " - install git."
-yum install -y git > /dev/null 2>&1
 #EOF

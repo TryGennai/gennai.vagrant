@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-cmd=$1
-shift
-cd "__KAFKA_INSTALL_DIR__/kafka"
-./bin/zookeeper-server-${cmd}.sh "$@"

@@ -6,7 +6,7 @@
 # description: zookeeper.
 # processname: zookeeper
 # pidfile: /var/local/zookeeper/zookeeper_server.pid
-# config: __ZK_INSTALL_DIR__/zookeeper/conf/zoo.cfg
+# config: /opt/zookeeper/conf/zoo.cfg
 #
 
 # Source function library.
@@ -29,8 +29,8 @@ status -p $pidfile >/dev/null 2>&1
 running=$?
 
 conf_check() {
-    [ -x __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh ] || exit 5
-    [ -d __ZK_INSTALL_DIR__/zookeeper/conf ] || exit 6
+    [ -x /opt/zookeeper/bin/zkServer.sh ] || exit 5
+    [ -d /opt/zookeeper/conf ] || exit 6
 }
 
 start() {
@@ -43,7 +43,7 @@ start() {
     # Start daemons.
     echo -n $"Starting zookeeper: "
     [ -x $CHROOT_UPDATE ] && $CHROOT_UPDATE
-    su __ZK_USER__ -c "ZOO_LOG_DIR=__ZK_INSTALL_DIR__/zookeeper __ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh start 2>/dev/null 1>&2" && success || failure $"$prog start"
+    su vagrant -c "ZOO_LOG_DIR=/opt/zookeeper /opt/zookeeper/bin/zkServer.sh start 2>/dev/null 1>&2" && success || failure $"$prog start"
     RETVAL=$?
     sleep 3
     [ $RETVAL -eq 0 ] && touch $lockfile
@@ -55,7 +55,7 @@ stop() {
     conf_check
     # Stop daemons.
     echo -n $"Shutting down zookeeper: "
-    su __ZK_USER__ -c "__ZK_INSTALL_DIR__/zookeeper/bin/zkServer.sh stop 2>/dev/null 1>&2" && success || failure $"$prog stop"
+    su vagrant -c "/opt/zookeeper/bin/zkServer.sh stop 2>/dev/null 1>&2" && success || failure $"$prog stop"
     RETVAL=$?
     [ $RETVAL -eq 0 ] && rm -f $lockfile $pidfile
     echo
@@ -70,7 +70,7 @@ init() {
         RETVAL=1
         return
     fi
-    DATADIR=`grep dataDir __ZK_INSTALL_DIR__/zookeeper/conf/zoo.cfg | awk -F= '{print $2}'`
+    DATADIR=`grep dataDir /opt/zookeeper/conf/zoo.cfg | awk -F= '{print $2}'`
     rm -rf ${DATADIR}/*
     RETVAL=$?
 }

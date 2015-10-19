@@ -3,66 +3,11 @@
 echo "in zookeeper."
 
 ZK_VERSION=3.4.6
-ZK_INSTALL_DIR=/opt
-ZK_USER=vagrant
-ZK_GROUP=vagrant
-ZK_SERVICE=off
-
-# mode check.
-. /vagrant/provision/shell/common.sh
-getConfig common
-getConfig zookeeper
-
-MODE=`getMode`
-case ${MODE} in
-	"minimum")
-		install=false
-		service=off
-		;;
-	*)
-		;;
-esac
-
-# source config and override settings.
-if [ ! -z "${install}" -a "${install}" = "false" ] ; then
-	echo " - not install."
-	exit 0
-fi
-
-if [ ! -z "${dir}" ] ; then
-	ZK_INSTALL_DIR=${dir}
-fi
-
-if [ ! -z "${version}" ] ; then
-	ZK_VERSION=${version}
-fi
-
-if [ ! -z "${user}" ] ; then
-	ZK_USER=${user}
-fi
-
-if [ ! -z "${group}" ] ; then
-	ZK_GROUP=${group}
-fi
-
-if [ ! -z "${service}" -a "${service}" = "on" ] ; then
-	ZK_SERVICE=${service}
-fi
 
 # install check
-if [ -d "${ZK_INSTALL_DIR}/zookeeper-${ZK_VERSION}" ] ; then
+if [ -d "/opt/zookeeper-${ZK_VERSION}" ] ; then
 	echo " - already."
 	exit 0
-fi
-
-# user/group check
-RESULT=`grep ${ZK_GROUP} /etc/group >/dev/null 2>&1`
-if [ $? -ne 0 ] ; then
-	groupadd ${ZK_GROUP}
-fi
-RESULT=`id ${ZK_USER} >/dev/null 2>&1`
-if [ $? -ne 0 ] ; then
-	useradd -g ${ZK_GROUP} -s /sbin/nologin -M ${ZK_USER}
 fi
 
 ### main
@@ -71,40 +16,37 @@ cd /tmp
 echo " - download. : zookeeper-${ZK_VERSION}.tar.gz"
 curl -L -O http://archive.apache.org/dist/zookeeper/zookeeper-${ZK_VERSION}/zookeeper-${ZK_VERSION}.tar.gz >/dev/null 2>&1
 
-echo " - install. : ${ZK_INSTALL_DIR}"
-tar zxf zookeeper-${ZK_VERSION}.tar.gz -C ${ZK_INSTALL_DIR}
-ln -s ${ZK_INSTALL_DIR}/zookeeper-${ZK_VERSION} ${ZK_INSTALL_DIR}/zookeeper
+echo " - install."
+tar zxf zookeeper-${ZK_VERSION}.tar.gz -C /opt
+ln -s /opt/zookeeper-${ZK_VERSION} /opt/zookeeper
 
 echo " - setting."
-cp /vagrant/files/zoo.cfg ${ZK_INSTALL_DIR}/zookeeper-${ZK_VERSION}/conf/
 mkdir -p /data/zookeeper
+cp -p /opt/zookeeper-${ZK_VERSION}/conf/{zoo_sample.cfg,zoo.cfg}
+sed -i \
+	-e "s/^\(dataDir\)=.*/\1=\/data\/zookeeper/g" \
+	-e "s/^#\(autopurge.snapRetainCount=.*\)/\1/g" \
+	-e "s/^#\(autopurge.purgeInterval=.*\)/\1/g" \
+	/opt/zookeeper-${ZK_VERSION}/conf/zoo.cfg
 
-OUTPUT=/home/${ZK_USER}/.bashrc
+OUTPUT=/home/vagrant/.bashrc
 if [ -f ${OUTPUT} ] ; then
 	echo "" >> ${OUTPUT}
-	echo "export ZOOKEEPER_HOME=${ZK_INSTALL_DIR}/zookeeper" >> ${OUTPUT}
+	echo "export ZOOKEEPER_HOME=/opt/zookeeper" >> ${OUTPUT}
 	echo "export PATH=\${ZOOKEEPER_HOME}/bin:\${PATH}" >> ${OUTPUT}
-	echo "export ZOO_LOG_DIR=${ZK_INSTALL_DIR}/zookeeper" >> ${OUTPUT}
+	echo "export ZOO_LOG_DIR=/opt/zookeeper" >> ${OUTPUT}
 fi
 
 echo " - chown."
-chown -R ${ZK_USER}:${ZK_GROUP} ${ZK_INSTALL_DIR}/zookeeper-${ZK_VERSION}
-chown -R ${ZK_USER}:${ZK_GROUP} /data/zookeeper
+chown -R vagrant:vagrant /opt/zookeeper-${ZK_VERSION}
+chown -R vagrant:vagrant /data/zookeeper
 
-echo " - service. : ${ZK_SERVICE}"
-S_ZK_INSTALL_DIR=`echo ${ZK_INSTALL_DIR} | sed -e "s/\//\\\\\\\\\//g"`
-sed \
-  -e "s/__ZK_INSTALL_DIR__/${S_ZK_INSTALL_DIR}/g" \
-  -e "s/__ZK_USER__/${ZK_USER}/g" \
-  /vagrant/files/zookeeper.initd > /etc/init.d/zookeeper
+echo " - service."
+cp /vagrant/files/zookeeper.initd /etc/init.d/zookeeper
 chmod +x /etc/init.d/zookeeper
 chkconfig --add zookeeper
-if [ "${ZK_SERVICE}" = "on" ] ; then
-	chkconfig zookeeper on
-	service zookeeper start
-else
-	chkconfig zookeeper off
-fi
+chkconfig zookeeper on
+service zookeeper start
 
 # cleaning
 rm -rf /tmp/zookeeper-${ZK_VERSION}.tar.gz
